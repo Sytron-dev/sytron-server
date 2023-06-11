@@ -1,40 +1,29 @@
 package main
 
-import (
-	"net/http"
-	"fmt"
+// import (
+// 	"net/http"
+// 	"fmt"
+// 	"log"
+// 	"github.com/nedpals/supabase-go"
+// )
+import (	
 	"log"
-)
-func confHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/conf" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
-	if r.Method != "GET" {
-		http.Error(w, "Method is not supported.", http.StatusNotFound)
-		return
-	}
-	fmt.Fprintf(w, "conf!")
-}
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/hello" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
-	if r.Method != "GET" {
-		http.Error(w, "Method is not supported.", http.StatusNotFound)
-		return
-	}
-	fmt.Fprintf(w, "Hello!")
+	"github.com/joho/godotenv"
+	supa "github.com/nedpals/supabase-go"
+) 
 
-}
-func main() {
-	fileServer := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fileServer)
-	http.HandleFunc("/hello", helloHandler)
+type Country struct {
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	Capital string `json:"capital"`
+  }
 
-	fmt.Printf("Starting server at port 8080\n")
-	if err:= http.ListenAndServe(":8080", nil); err !=nil {
-		log.Fatal(err)
+func main(){
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
+	supabaseUrl := "supabaseUrl"
+	supabaseKey := "supabaseKey"
+	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
 }
