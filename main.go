@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"log"
+	"net/http"
 	"github.com/google/uuid"
-	"github.com/nedpals/supabase-go"
 	supa "github.com/nedpals/supabase-go"
 ) 
 
@@ -22,6 +21,9 @@ func updateUser(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
+	supabaseUrl := "https://bnzcbbpmekiavacefqfr.supabase.co"
+	supabaseKey := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuemNiYnBtZWtpYXZhY2VmcWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY0Nzc1MjYsImV4cCI6MjAwMjA1MzUyNn0.MYAFfpmn2xo6OVoYgMDYyQuNBzpwfEvHaU1w8eF8VJg"
+	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
 	row := User{
 		First_name: "Vincent",
 		Last_name: "Kamemia",
@@ -29,11 +31,11 @@ func updateUser(w http.ResponseWriter, r *http.Request){
 		Password: "12345",
 	}
 	var results map[string]interface{}
-	err := supabase.DB.From("users").Update(row).Execute(&results)
+	err := supabase.DB.From("users").Update(row).Eq("id", "c0b0b0a0-0a0a-0a0a-0a0a-0a0a0a0a0a0a").Execute(&results)
 	if err != nil {
 		panic(err)
 	  }
-	  fmt.Println(results)
+
 }
 func createUser(w http.ResponseWriter, r *http.Request){
 	if r.URL.Path != "/createuser" {
