@@ -1,24 +1,60 @@
 package main
 
 import (
+	// local imports
 	"fmt"
 	"log"
-	"os"
 	"net/http"
-	"github.com/google/uuid"
-	supa "github.com/nedpals/supabase-go"
-	"github.com/joho/godotenv"
-) 
+	"os"
+	"sytron-server/routers"
 
+	"github.com/google/uuid"
+	"github.com/joho/godotenv"
+	supa "github.com/nedpals/supabase-go"
+)
+
+func main() {
+	// oldMain()
+
+	r := routers.InitRouters()
+	r.Run() // listen and serve on 0.0.0.0:8080
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------
+|                                                                                                                        |
+|                                                                                                                        |
+|                                                                                                                        |
+|                      Old main method runs on 8081                                                                      |
+|                                                                                                                        |
+|                                                                                                                        |
+|                                                                                                                        |
+| ----------------------------------------------------------------------------------------------------------------------
+*/
+
+func oldMain() {
+	fileServer := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fileServer)
+	http.HandleFunc("/createuser", createUser)
+	http.HandleFunc("/updateuser", updateUser)
+	http.HandleFunc("/user", user)
+	http.HandleFunc("/deleteuser", deleteUser)
+	http.ListenAndServe(":8080", nil)
+	fmt.Printf("Starting server at port 8080\n")
+	if err := http.ListenAndServe(":8081", nil); err != nil {
+		log.Fatal(err)
+	}
+
+}
 
 type User struct {
-	ID uuid.UUID `json:"id"`
-	First_name string `json:"first_name"`
-	Last_name string `json:"last_name"`
-	Email string `json:"email"`
-	Password string `json:"password"`
+	ID         uuid.UUID `json:"id"`
+	First_name string    `json:"first_name"`
+	Last_name  string    `json:"last_name"`
+	Email      string    `json:"email"`
+	Password   string    `json:"password"`
 }
-func updateUser(w http.ResponseWriter, r *http.Request){
+
+func updateUser(w http.ResponseWriter, r *http.Request) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -32,18 +68,18 @@ func updateUser(w http.ResponseWriter, r *http.Request){
 	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
 	row := User{
 		First_name: "Vincent",
-		Last_name: "Kamemia",
-		Email: "vincentkamemia@gmail.com",
-		Password: "12345",
+		Last_name:  "Kamemia",
+		Email:      "vincentkamemia@gmail.com",
+		Password:   "12345",
 	}
 	var results map[string]interface{}
 	err = supabase.DB.From("users").Update(row).Eq("ID", "00000000-0000-0000-0000-000000000000").Execute(&results)
 	if err != nil {
 		panic(err)
-	  }
+	}
 
 }
-func createUser(w http.ResponseWriter, r *http.Request){
+func createUser(w http.ResponseWriter, r *http.Request) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -56,29 +92,29 @@ func createUser(w http.ResponseWriter, r *http.Request){
 	supabaseKey := os.Getenv("supabaseKey")
 	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
 	// Generate a new UUID
-	
+
 	// Create a new user
 	row := User{
-		ID : uuid.New(),
+		ID:         uuid.New(),
 		First_name: "Vincent",
-		Last_name: "Kamemia",
-		Email: "johndoe@mail.com",
-		Password: "password",
-		}
-	
-		var results []User
-		err = supabase.DB.From("users").Insert(row).Execute(&results)
-		if err != nil {
-			panic(err)
-		}
+		Last_name:  "Kamemia",
+		Email:      "johndoe@mail.com",
+		Password:   "password",
+	}
+
+	var results []User
+	err = supabase.DB.From("users").Insert(row).Execute(&results)
+	if err != nil {
+		panic(err)
+	}
 
 }
-func deleteUser(w http.ResponseWriter, r *http.Request){
+func deleteUser(w http.ResponseWriter, r *http.Request) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	if r.URL.Path != "/deleteuser"{
+	if r.URL.Path != "/deleteuser" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
@@ -87,12 +123,13 @@ func deleteUser(w http.ResponseWriter, r *http.Request){
 	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
 
 	var results map[string]interface{}
+
 	err = supabase.DB.From("users").Delete().Eq("ID", "00000000-0000-0000-0000-000000000000").Execute(&results)
 	if err != nil {
 		panic(err)
 	}
 }
-func user(w http.ResponseWriter, r *http.Request){
+func user(w http.ResponseWriter, r *http.Request) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -106,24 +143,10 @@ func user(w http.ResponseWriter, r *http.Request){
 	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
 
 	var results map[string]interface{}
- 	err = supabase.DB.From("users ").Select("*").Single().Execute(&results)
+	err = supabase.DB.From("users").Select("*").Single().Execute(&results)
 	if err != nil {
 		panic(err)
 	}
 
-  fmt.Println(results)
-}
-func main() {
-	fileServer := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fileServer)
-	http.HandleFunc("/createuser", createUser)
-	http.HandleFunc("/updateuser", updateUser)
-	http.HandleFunc("/user", user)
-	http.HandleFunc("/deleteuser", deleteUser)
-	http.ListenAndServe(":8080", nil)
-	fmt.Printf("Starting server at port 8080\n")
-	if err:= http.ListenAndServe(":8080", nil); err !=nil {
-		log.Fatal(err)
-	}
-
+	fmt.Println(results)
 }
