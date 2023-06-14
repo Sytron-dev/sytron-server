@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"net/http"
 	"github.com/google/uuid"
 	supa "github.com/nedpals/supabase-go"
+	"github.com/joho/godotenv"
 ) 
 
 
@@ -17,12 +19,16 @@ type User struct {
 	Password string `json:"password"`
 }
 func updateUser(w http.ResponseWriter, r *http.Request){
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	if r.URL.Path != "/updateuser" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
-	supabaseUrl := "https://bnzcbbpmekiavacefqfr.supabase.co"
-	supabaseKey := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuemNiYnBtZWtpYXZhY2VmcWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY0Nzc1MjYsImV4cCI6MjAwMjA1MzUyNn0.MYAFfpmn2xo6OVoYgMDYyQuNBzpwfEvHaU1w8eF8VJg"
+	supabaseUrl := os.Getenv("supabaseUrl")
+	supabaseKey := os.Getenv("supabaseKey")
 	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
 	row := User{
 		First_name: "Vincent",
@@ -31,19 +37,23 @@ func updateUser(w http.ResponseWriter, r *http.Request){
 		Password: "12345",
 	}
 	var results map[string]interface{}
-	err := supabase.DB.From("users").Update(row).Eq("id", "c0b0b0a0-0a0a-0a0a-0a0a-0a0a0a0a0a0a").Execute(&results)
+	err = supabase.DB.From("users").Update(row).Eq("ID", "00000000-0000-0000-0000-000000000000").Execute(&results)
 	if err != nil {
 		panic(err)
 	  }
 
 }
 func createUser(w http.ResponseWriter, r *http.Request){
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	if r.URL.Path != "/createuser" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
-	supabaseUrl := "https://bnzcbbpmekiavacefqfr.supabase.co"
-	supabaseKey := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuemNiYnBtZWtpYXZhY2VmcWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY0Nzc1MjYsImV4cCI6MjAwMjA1MzUyNn0.MYAFfpmn2xo6OVoYgMDYyQuNBzpwfEvHaU1w8eF8VJg"
+	supabaseUrl := os.Getenv("supabaseUrl")
+	supabaseKey := os.Getenv("supabaseKey")
 	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
 	// Generate a new UUID
 	
@@ -55,18 +65,61 @@ func createUser(w http.ResponseWriter, r *http.Request){
 		Email: "johndoe@mail.com",
 		Password: "password",
 		}
+	
 		var results []User
-		err := supabase.DB.From("users").Insert(row).Execute(&results)
+		err = supabase.DB.From("users").Insert(row).Execute(&results)
 		if err != nil {
 			panic(err)
-		  }
+		}
 
+}
+func deleteUser(w http.ResponseWriter, r *http.Request){
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	if r.URL.Path != "/deleteuser"{
+		http.Error(w, "404 not found.", http.StatusNotFound)
+		return
+	}
+	supabaseUrl := os.Getenv("supabaseUrl")
+	supabaseKey := os.Getenv("supabaseKey")
+	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
+
+	var results map[string]interface{}
+	err = supabase.DB.From("users").Delete().Eq("ID", "00000000-0000-0000-0000-000000000000").Execute(&results)
+	if err != nil {
+		panic(err)
+	}
+}
+func user(w http.ResponseWriter, r *http.Request){
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	if r.URL.Path != "/user" {
+		http.Error(w, "404 not found.", http.StatusNotFound)
+		return
+	}
+	supabaseUrl := os.Getenv("supabaseUrl")
+	supabaseKey := os.Getenv("supabaseKey")
+	supabase := supa.CreateClient(supabaseUrl, supabaseKey)
+
+	var results map[string]interface{}
+ 	err = supabase.DB.From("users ").Select("*").Single().Execute(&results)
+	if err != nil {
+		panic(err)
+	}
+
+  fmt.Println(results)
 }
 func main() {
 	fileServer := http.FileServer(http.Dir("./static"))
 	http.Handle("/", fileServer)
 	http.HandleFunc("/createuser", createUser)
 	http.HandleFunc("/updateuser", updateUser)
+	http.HandleFunc("/user", user)
+	http.HandleFunc("/deleteuser", deleteUser)
 	http.ListenAndServe(":8080", nil)
 	fmt.Printf("Starting server at port 8080\n")
 	if err:= http.ListenAndServe(":8080", nil); err !=nil {
