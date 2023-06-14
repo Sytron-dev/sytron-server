@@ -1,7 +1,6 @@
 package confs
 
 import (
-	"fmt"
 	"net/http"
 	"sytron-server/database"
 	"sytron-server/models"
@@ -13,8 +12,8 @@ import (
 func GetCountries(router *gin.Engine) {
 	router.GET("/confs/countries", func(ctx *gin.Context) {
 
-		var results map[string]interface{}
-		err := database.GetClient().DB.From("users").Select("*").Execute(&results)
+		var data []models.Country
+		err := database.GetClient().DB.From("countries").Select("*").Execute(&data)
 
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -23,7 +22,7 @@ func GetCountries(router *gin.Engine) {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, results)
+		ctx.JSON(http.StatusOK, data)
 
 	})
 }
@@ -47,7 +46,6 @@ func CreateCountry(router *gin.Engine) {
 			})
 			return
 		}
-		fmt.Println(results)
 
 		ctx.JSON(http.StatusOK, results)
 
