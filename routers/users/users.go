@@ -29,7 +29,7 @@ func CreateUser(router *gin.Engine) {
 		}
 	})
 
-}
+} 
 func UpdateUser(router *gin.Engine) {
 	
 }
