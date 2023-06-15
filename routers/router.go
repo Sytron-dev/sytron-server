@@ -20,6 +20,7 @@ func InitRouters() *gin.Engine {
 
 	// Register routes
 	RegisterDestinationRoutes(router)
+	RegisterAccomodationRoutes(router)
 	confs.RegisterConfRoutes(router)
 	users.RegisterUsersRoutes(router)
 
