@@ -20,3 +20,4 @@ type Location struct {
 	Lon       float32   `json:"lon"`
 	CountryID string    `json:"country_id"`
 }
+

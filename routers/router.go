@@ -2,7 +2,8 @@ package routers
 
 import (
 	"sytron-server/routers/confs"
-
+	"sytron-server/routers/users"
+	
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -19,7 +20,9 @@ func InitRouters() *gin.Engine {
 
 	// Register routes
 	RegisterDestinationRoutes(router)
+	RegisterAccomodationRoutes(router)
 	confs.RegisterConfRoutes(router)
+	users.RegisterUsersRoutes(router)
 
 	return router
 }

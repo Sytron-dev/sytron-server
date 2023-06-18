@@ -52,3 +52,29 @@ func CreateCountry(router *gin.Engine) {
 	})
 
 }
+
+
+func CreateLocation(router *gin.Engine) {
+	router.POST("/confs/locations", func(ctx *gin.Context) {
+
+		var newLocation models.Location
+		if err := ctx.BindJSON(&newLocation); err != nil {
+			return
+		}
+		newLocation.ID = uuid.New()
+
+		var results map[string]interface{}
+		err := database.GetClient().DB.From("locations").Insert(newLocation).Execute(&results)
+
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"err": err,	
+				"req": ctx.Request,
+			})
+			return
+		}
+
+			ctx.JSON(http.StatusOK, results)
+			
+	})
+}
