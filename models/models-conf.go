@@ -21,3 +21,12 @@ type Location struct {
 	CountryID string    `json:"country_id"`
 }
 
+type Accomodation struct {
+	ID 		uuid.UUID `json:"id"`
+	Name 	string `json:"name"`
+	Price 	float32 `json:"price"`
+	LocationID string `json:"location_id"`
+	Rating 	float32 `json:"rating"`
+	Rooms 	int `json:"rooms"`
+	Description string `json:"description"`
+}
