@@ -22,7 +22,7 @@ type SignedDetails struct {
     First_name string
     Last_name  string
     Uid        string
-    jwt.ClaimStrings
+    jwt.RegisteredClaims
 }
 
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
@@ -32,26 +32,29 @@ var SECRET_KEY string = os.Getenv("SECRET_KEY")
 // GenerateAllTokens generates both teh detailed token and refresh token
 func GenerateAllTokens(email string, firstName string, lastName string, uid string) (signedToken string, signedRefreshToken string, err error) {
     // Create claims for access token
-    claims := &SignedDetails{
+    nowTime := time.Now()
+    expireTime := nowTime.Add(time.Minute * 15)
+    claims := SignedDetails{
         Email:      email,
         First_name: firstName,
         Last_name:  lastName,
         Uid:        uid,
-        ClaimStrings: jwt.ClaimStrings{
-            StandardClaims: jwt.StandardClaims{
-                ExpiresAt: time.Now().Local().Add(time.Hour * 24).Unix(),
-            },
+        RegisteredClaims: jwt.RegisteredClaims{
+            ExpiresAt: jwt.NewNumericDate(expireTime),
         },
+        //     ExpiresAt: &jwt.NumericDate{now.Add(time.Minute * 15)},
+        // },
     }
 
     // Create claims for refresh token
+
     refreshClaims := &SignedDetails{
-        ClaimStrings: jwt.ClaimStrings{
-            StandardClaims: jwt.StandardClaims{
-                ExpiresAt: time.Now().Local().Add(time.Hour * 168).Unix(),
-            },
+        RegisteredClaims: jwt.RegisteredClaims{
+            ExpiresAt: jwt.NewNumericDate(expireTime),
         },
     }
+    
+
 
     // Generate access token
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -72,6 +75,8 @@ func GenerateAllTokens(email string, firstName string, lastName string, uid stri
 
 //ValidateToken validates the jwt token
 func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
+    // nowTime := time.Now()
+    
     token, err := jwt.ParseWithClaims(
         signedToken,
         &SignedDetails{},
@@ -92,11 +97,16 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
         return
     }
 
-    if claims.ExpiresAt < time.Now().Local().Unix() {
-        msg = fmt.Sprintf("token is expired")
-        msg = err.Error()
-        return
-    }
+    // if claims.ExpiresAt < time.Now().Local().Unix() {
+    //     msg = fmt.Sprintf("token is expired")
+    //     msg = err.Error()
+    //     return
+    // }
+    // if claims.ExpiresAt < jwt.NewNumericDate(nowTime) {
+    //     msg = fmt.Sprintf("token is expired")
+    //     msg = err.Error()
+    //     return
+    // }
 
     return claims, msg
 }
