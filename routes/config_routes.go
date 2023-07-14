@@ -8,4 +8,5 @@ import (
 
 func initConfigRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.GET("/configs/countries", configs.GetCountries())
+	incomingRoutes.GET("/configs/cities", configs.GetCities())
 }
