@@ -41,3 +41,7 @@ func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collecti
 
 	return collection
 }
+
+func GetCollection(collectionName string) *mongo.Collection {
+	return Client.Database(DATABASE_NAME).Collection(collectionName)
+}
