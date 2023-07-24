@@ -27,9 +27,10 @@ func GetCountries() gin.HandlerFunc {
 		cursor, err := collection.Find(context.TODO(), filter, option)
 		if err != nil {
 			logger.Handle(err, "Fetching countries array")
-			var resErr models.ErrorResponse
-			resErr.Message = "Internal server error"
-			ctx.JSON(http.StatusInternalServerError, resErr)
+			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Message: "Internal server error",
+				Error:   err,
+			})
 		} else {
 			var countries []models.Country
 			cursor.All(context.TODO(), &countries)
@@ -48,9 +49,11 @@ func GetCities() gin.HandlerFunc {
 		var body getCitiesRequestBody
 		if err := ctx.BindJSON(&body); err != nil {
 			logger.Handle(err, "Fetching cities array")
-			var resErr models.ErrorResponse
-			resErr.Message = "Internal server error"
-			ctx.JSON(http.StatusBadRequest, resErr)
+			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+				Message: "Check request body country_code",
+				Error:   err,
+			})
+			return
 		}
 
 		collection := getCollection(CITIES_COLLECTION)
@@ -62,10 +65,10 @@ func GetCities() gin.HandlerFunc {
 		cursor, err := collection.Find(context.TODO(), filter, options)
 		if err != nil {
 			logger.Handle(err, "Fetching cities array")
-			var resErr models.ErrorResponse
-			resErr.Message = "Internal server error"
-			resErr.Error = err
-			ctx.JSON(http.StatusInternalServerError, resErr)
+			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Message: "Internal server error",
+				Error:   err,
+			})
 		} else {
 			var cities []models.City
 			cursor.All(context.TODO(), &cities)
