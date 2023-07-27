@@ -1,2 +1,1 @@
-# sytron-server
 # Api documentation
