@@ -99,7 +99,38 @@ func GetSingleDestination() gin.HandlerFunc {
 
 func UpdateDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, "Update one destination")
+
+		id := ctx.Params.ByName("id")
+		_id, _ := primitive.ObjectIDFromHex(id)
+
+		// Get updated destination from request body
+		var updatedDest models.Destination
+
+		if err := ctx.ShouldBindJSON(&updatedDest); err != nil {
+			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+				Message: "Failed parsing request body",
+				Error:   err,
+			})
+			return
+		}
+
+		collection := database.GetCollection(DESTINATIONS_COLLECTION)
+		filter := bson.D{{Key: "_id", Value: _id}}
+		update := bson.M{
+			"$set": updatedDest,
+		}
+
+		_, err := collection.UpdateOne(context.TODO(), filter, update)
+
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Message: "Failed updating destination",
+				Error:   err,
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, updatedDest)
 	}
 }
 
