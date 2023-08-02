@@ -20,15 +20,16 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	routes.InitRoutes(router)
 
 	// Allow cors
 	router.Use(cors.New(cors.Config{
-		AllowAllOrigins: true,
-		AllowMethods:    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:    []string{"X-Requested-With", "Content-Type", "Authorization"},
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowCredentials: true,
 	}))
+	routes.InitRoutes(router)
 
+	// @vin, I will need to move this up when I implement authorization
 	router.Use(middleware.Authentication())
 
 	router.Run(":" + port)
