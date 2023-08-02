@@ -8,6 +8,7 @@ type Country struct {
 	ID           primitive.ObjectID `bson:"_id" json:"_id", omitempty`
 	Name         string             `bson:"name" json:"name"`
 	EnLabel      string             `bson:"en_label" json:"en_label"`
+	Value        string             `bson:"iso2" json:"value"`
 	Lat          float64            `bson:"lat" json:"lat"`
 	Lon          float64            `bson:"lon" json:"lon"`
 	CurrencyCode string             `bson:"currency_code" json:"currency_code"`
