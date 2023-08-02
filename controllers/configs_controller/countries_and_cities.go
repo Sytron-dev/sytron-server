@@ -39,25 +39,21 @@ func GetCountries() gin.HandlerFunc {
 	}
 }
 
-type getCitiesRequestBody struct {
-	CountryCode string `json:"country_code"`
-}
-
 func GetCities() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Get the request body
-		var body getCitiesRequestBody
-		if err := ctx.BindJSON(&body); err != nil {
-			logger.Handle(err, "Fetching cities array")
+
+		countryCode, countryCodeFound := ctx.GetQuery("country_code")
+		if !countryCodeFound {
 			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-				Message: "Check request body country_code",
-				Error:   err,
+				Message: "Check request params for country_code",
+				Error:   nil,
 			})
 			return
 		}
 
 		collection := getCollection(CITIES_COLLECTION)
-		filter := bson.D{{Key: "country_code", Value: body.CountryCode}}
+		filter := bson.D{{Key: "country_iso2", Value: countryCode}}
 		options := options.Find()
 		options.SetLimit(200)
 
