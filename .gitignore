@@ -1,4 +1,4 @@
 /vendor
+/tmp
 *.exe
 sytron-server
-tmp/runner-build
