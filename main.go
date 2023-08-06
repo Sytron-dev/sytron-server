@@ -26,6 +26,9 @@ func main() {
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowCredentials: true,
+		AllowHeaders:     []string{"*"},
+		AllowWildcard:    true,
+		AllowFiles:       true,
 	}))
 	routes.InitRoutes(router)
 
