@@ -20,4 +20,4 @@ func initGCP() *storage.Client {
 
 var StorageClient = initGCP()
 
-var CMSBucket = StorageClient.Bucket("stride-gcp")
+var CMSBucketHandle = StorageClient.Bucket("stride-cms")
