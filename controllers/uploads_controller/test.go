@@ -9,7 +9,7 @@ import (
 
 func TestUploads() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if u, errResponse := uploadFile(ctx, "file", storage.CMSBucketHandle, "test/test.png"); errResponse != nil {
+		if u, errResponse := UploadFile(ctx, "file", storage.CMSBucketHandle, "test/test.png"); errResponse != nil {
 			ctx.JSON(http.StatusInternalServerError, errResponse)
 		} else {
 			ctx.JSON(http.StatusOK, gin.H{

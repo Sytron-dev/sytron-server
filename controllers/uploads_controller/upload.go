@@ -9,7 +9,7 @@ import (
 	"google.golang.org/appengine"
 )
 
-func uploadFile(
+func UploadFile(
 
 	ctx *gin.Context,
 	key string,
@@ -18,7 +18,7 @@ func uploadFile(
 
 ) (*string, *models.ErrorResponse) {
 
-	f, _, err := ctx.Request.FormFile("file")
+	f, _, err := ctx.Request.FormFile(key)
 
 	if err != nil {
 		return nil, &models.ErrorResponse{

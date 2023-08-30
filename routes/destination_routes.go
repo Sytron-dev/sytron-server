@@ -12,5 +12,6 @@ func initDestinationRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.GET("/destinations", destinations.GetDestinations())
 	incomingRoutes.GET("/destinations/:id", destinations.GetSingleDestination())
 	incomingRoutes.PUT("/destinations/:id", destinations.UpdateDestination())
+	incomingRoutes.PUT("/destinations/:id/upload/image", destinations.UploadDestinationImage())
 	incomingRoutes.DELETE("/destinations/:id", destinations.DeleteDestination())
 }
