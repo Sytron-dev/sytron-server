@@ -18,7 +18,7 @@ func UploadFile(
 
 ) (*string, *models.ErrorResponse) {
 
-	f, _, err := ctx.Request.FormFile(key)
+	f, fHeader, err := ctx.Request.FormFile(key)
 
 	if err != nil {
 		return nil, &models.ErrorResponse{
@@ -30,7 +30,7 @@ func UploadFile(
 
 	appengineCtx := appengine.NewContext(ctx.Request)
 
-	sw := bucketHandle.Object(filePath).NewWriter(appengineCtx)
+	sw := bucketHandle.Object(filePath + "_" + fHeader.Filename).NewWriter(appengineCtx)
 
 	if _, err := io.Copy(sw, f); err != nil {
 		return nil, &models.ErrorResponse{
@@ -47,6 +47,6 @@ func UploadFile(
 	}
 
 	// if all is good :
-	url := "https://storage.cloud.google.com/" + sw.Attrs().Name
+	url := sw.Attrs().MediaLink
 	return &url, nil
 }
