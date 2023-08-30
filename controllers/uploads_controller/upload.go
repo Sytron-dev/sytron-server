@@ -30,7 +30,7 @@ func UploadFile(
 
 	appengineCtx := appengine.NewContext(ctx.Request)
 
-	sw := bucketHandle.Object(filePath + "_" + fHeader.Filename).NewWriter(appengineCtx)
+	sw := bucketHandle.Object(filePath).NewWriter(appengineCtx)
 
 	if _, err := io.Copy(sw, f); err != nil {
 		return nil, &models.ErrorResponse{
