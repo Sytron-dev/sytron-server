@@ -18,7 +18,7 @@ func UploadFile(
 
 ) (*string, *models.ErrorResponse) {
 
-	f, fHeader, err := ctx.Request.FormFile(key)
+	f, _, err := ctx.Request.FormFile(key)
 
 	if err != nil {
 		return nil, &models.ErrorResponse{
