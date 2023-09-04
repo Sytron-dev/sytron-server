@@ -102,11 +102,6 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
     //     msg = err.Error()
     //     return
     // }
-    // if claims.ExpiresAt < jwt.NewNumericDate(nowTime) {
-    //     msg = fmt.Sprintf("token is expired")
-    //     msg = err.Error()
-    //     return
-    // }
 
     return claims, msg
 }
