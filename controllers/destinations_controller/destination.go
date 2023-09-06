@@ -49,8 +49,6 @@ func CreateDestination() gin.HandlerFunc {
 
 func GetDestinations() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		fmt.Printf("DATABASE NAME: %s", database.DATABASE_NAME)
-		return
 
 		// Get destinations collection
 		collection := database.GetCollection(DESTINATIONS_COLLECTION)
