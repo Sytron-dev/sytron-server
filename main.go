@@ -36,4 +36,5 @@ func main() {
 	router.Use(middleware.Authentication())
 
 	router.Run(":" + port)
-}
+
+	} 
