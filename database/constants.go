@@ -13,3 +13,8 @@ var _ = godotenv.Load(".env")
 var MONGODB_CONNECTION_STRING = os.Getenv("MONGODB_CONNECTION_STRING")
 var DATABASE_NAME = os.Getenv("PRIMARY_DATABASE")
 var CONFIGS_DATABASE_NAME = os.Getenv("CONFIGS_DATABASE")
+
+// ---- Collection names -----------------------------------------------------------------
+const (
+	DESTINATIONS_COLLECTION = "destinations"
+)

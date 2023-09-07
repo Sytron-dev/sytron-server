@@ -30,7 +30,7 @@ func CreateDestination() gin.HandlerFunc {
 			return
 		}
 
-		collection := database.GetCollection(DESTINATIONS_COLLECTION)
+		collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
 
 		body.ID = primitive.NewObjectID()
 		_, err := collection.InsertOne(context.TODO(), body)
@@ -51,7 +51,7 @@ func GetDestinations() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		// Get destinations collection
-		collection := database.GetCollection(DESTINATIONS_COLLECTION)
+		collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
 
 		// Find all destinations
 		cursor, err := collection.Find(context.TODO(), bson.D{{}})
@@ -79,7 +79,7 @@ func GetDestinations() gin.HandlerFunc {
 func findOneDestination(_id primitive.ObjectID) (*models.Destination, *models.ErrorResponse) {
 
 	// Get destinations collection
-	collection := database.GetCollection(DESTINATIONS_COLLECTION)
+	collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
 	filter := bson.D{{Key: "_id", Value: _id}}
 
 	var destination models.Destination
@@ -97,10 +97,15 @@ func GetSingleDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Get _id param
 		id := ctx.Params.ByName("id")
-		_id, _ := primitive.ObjectIDFromHex(id)
 
-		if destination, errResponse := findOneDestination(_id); errResponse != nil {
-			ctx.JSON(http.StatusInternalServerError, errResponse)
+		destination := models.NewDestination()
+		_ = destination.SetID(id)
+
+		if destination, err := destination.FindOneByID(); err != nil {
+			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Message: "Error finding document",
+				Error:   err,
+			})
 			return
 		} else {
 			ctx.JSON(http.StatusOK, destination)
@@ -113,7 +118,7 @@ func updateOneDestination(id string, data models.Destination) (*models.Destinati
 	_id, _ := primitive.ObjectIDFromHex(id)
 	data.ID = _id // avoid mutating Object key
 
-	collection := database.GetCollection(DESTINATIONS_COLLECTION)
+	collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
 	filter := bson.D{{Key: "_id", Value: _id}}
 	update := bson.M{"$set": data}
 
@@ -185,7 +190,7 @@ func UploadDestinationImage() gin.HandlerFunc {
 func DeleteDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id := ctx.Params.ByName("id")
-		collection := database.GetCollection(DESTINATIONS_COLLECTION)
+		collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
 
 		if _, err := collection.DeleteOne(ctx.Request.Context(), bson.M{"_id": id}); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
