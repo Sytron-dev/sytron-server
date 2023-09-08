@@ -8,6 +8,7 @@ import (
 	"sytron-server/database"
 	"sytron-server/helpers/logger"
 	"sytron-server/models"
+	"sytron-server/resolvers"
 	"sytron-server/storage"
 
 	"github.com/gin-gonic/gin"
@@ -76,32 +77,12 @@ func GetDestinations() gin.HandlerFunc {
 	}
 }
 
-func findOneDestination(_id primitive.ObjectID) (*models.Destination, *models.ErrorResponse) {
-
-	// Get destinations collection
-	collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
-	filter := bson.D{{Key: "_id", Value: _id}}
-
-	var destination models.Destination
-	if err := collection.FindOne(context.TODO(), filter).Decode(&destination); err != nil {
-
-		return &destination, &models.ErrorResponse{
-			Message: "Failed to read from database",
-			Error:   err,
-		}
-	}
-	return &destination, nil
-}
-
 func GetSingleDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Get _id param
 		id := ctx.Params.ByName("id")
 
-		destination := models.NewDestination()
-		_ = destination.SetID(id)
-
-		if destination, err := destination.FindOneByID(); err != nil {
+		if destination, err := resolvers.DestinationResolver.FindOneByID(id); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Message: "Error finding document",
 				Error:   err,
@@ -116,21 +97,20 @@ func GetSingleDestination() gin.HandlerFunc {
 
 func updateOneDestination(id string, data models.Destination) (*models.Destination, error) {
 	_id, _ := primitive.ObjectIDFromHex(id)
-	data.ID = _id // avoid mutating Object key
+
+	tmpDest := models.NewDestination()
+	tmpDest.SetID(id)
 
 	collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
 	filter := bson.D{{Key: "_id", Value: _id}}
+
 	update := bson.M{"$set": data}
 
 	if _, err := collection.UpdateOne(context.TODO(), filter, update); err != nil {
 		return nil, err
 	}
 
-	if updatedDest, errResponse := findOneDestination(_id); errResponse != nil {
-		return updatedDest, errResponse.Error
-	} else {
-		return updatedDest, nil
-	}
+	return tmpDest.FindOneByID()
 }
 
 func UpdateDestination() gin.HandlerFunc {

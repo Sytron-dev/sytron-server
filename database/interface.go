@@ -9,19 +9,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// ---- Create operations ----------------------------------------------------------------
 func InsertOne() {}
 
-func FindOneByValue(key string, value interface{}, collectionName string) (document *interface{}, err error) {
-
-	// Get database collection from collectionName
-	collection := GetCollection(collectionName)
-	filter := bson.D{{Key: key, Value: value}}
-
-	// Write the result to an arbitrary interface
-	err = collection.FindOne(context.TODO(), filter).Decode(document)
-
-	return
-}
+// ---- Read Operations ------------------------------------------------------------------
 
 func FindOneByID[ModelType any](collectionName string, _id primitive.ObjectID, model ModelType) (doc ModelType, err error) {
 
@@ -48,6 +39,8 @@ func FindMany() {}
 
 func FindManyPaginated() {}
 
-func FindUpdateOne() {}
+// ---- Update operations ----------------------------------------------------------------
 
-func FindDeleteOne() {}
+// ---- Delete operations ----------------------------------------------------------------
+
+func DeleteOne() {}
