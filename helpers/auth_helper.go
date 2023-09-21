@@ -4,31 +4,39 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
-//CheckUserType renews the user tokens when they login
+// Roles
+
+const (
+	USER_TYPE_CONSUMER    = "consumer"
+	USER_TYPE_MERCHANT    = "merchant"
+	USER_TYPE_BACKOFFICER = "backofficer"
+)
+
+// CheckUserType renews the user tokens when they login
 func CheckUserType(c *gin.Context, role string) (err error) {
 	userType := c.GetString("user_type")
-	err = nil
 	if userType != role {
-		err = errors.New("Unauthorized to access this resource")
-		return err
+		return errors.New("unauthorized to access this resource")
 	}
-
-	return err
+	return
 }
 
-//MatchUserTypeToUid only allows the user to access their data and no other data. Only the admin can access all user data
+// MatchUserTypeToUid only allows the user to access their data and no other data. Only the admin can access all user data
 func MatchUserTypeToUid(c *gin.Context, userId string) (err error) {
 	userType := c.GetString("user_type")
 	uid := c.GetString("uid")
-	err = nil
 
 	if userType == "USER" && uid != userId {
-		err = errors.New("Unauthorized to access this resource")
-		return err
+		return errors.New("unauthorized to access this resource")
 	}
-	err = CheckUserType(c, userType)
+	return CheckUserType(c, userType)
+}
 
-	return err
+// HashPassword is used to encrypt the password before it is stored in the DB
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
 }

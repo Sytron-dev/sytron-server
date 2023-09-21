@@ -98,7 +98,7 @@ func GetSingleDestination() gin.HandlerFunc {
 func updateOneDestination(id string, data models.Destination) (*models.Destination, error) {
 	_id, _ := primitive.ObjectIDFromHex(id)
 
-	tmpDest := models.NewDestination()
+	tmpDest := resolvers.DestinationResolver.TODO()
 	tmpDest.SetID(id)
 
 	collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
@@ -110,7 +110,7 @@ func updateOneDestination(id string, data models.Destination) (*models.Destinati
 		return nil, err
 	}
 
-	return tmpDest.FindOneByID()
+	return resolvers.DestinationResolver.FindOneByID(id)
 }
 
 func UpdateDestination() gin.HandlerFunc {

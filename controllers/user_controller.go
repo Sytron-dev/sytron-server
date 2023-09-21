@@ -2,119 +2,110 @@ package controllers
 
 import (
 	"context"
-	"fmt"
-	"log"
-
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-
-	"sytron-server/database"
-
-	helper "sytron-server/helpers"
-	"sytron-server/models"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
+
+	"sytron-server/database"
+	helper "sytron-server/helpers"
+	"sytron-server/models"
 )
 
-var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
-var validate = validator.New()
+var (
+	validate = validator.New()
+)
 
-// HashPassword is used to encrypt the password before it is stored in the DB
-func HashPassword(password string) string {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	return string(bytes)
-}
-
-// VerifyPassword checks the input password while verifying it with the passward in the DB.
-func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
-	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
-	check := true
-	msg := ""
-
-	if err != nil {
-		msg = fmt.Sprintf("login or password is incorrect")
+// VerifyPassword checks the input password while verifying it with the password in the DB.
+func VerifyPassword(userPassword string, providedPassword string) (check bool, msg string) {
+	if err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword)); err != nil {
+		msg = "Login or password is incorrect"
 		check = false
+	} else {
+		msg = "Valid credentials"
+		check = true
 	}
-
-	return check, msg
+	return
 }
 
 // CreateUser is the api used to get a single user
 func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		collection := database.GetCollection(database.USERS_COLLECTION)
+
+		// initialise variables for this scope
 		var user models.User
 
+		// Create DB context
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		// Bind user data
 		if err := c.BindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		validationErr := validate.Struct(user)
-		if validationErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
+		// Validate data integrity
+		if err := validate.Struct(user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		count, err := userCollection.CountDocuments(ctx, bson.M{"email": user.Email})
-		defer cancel()
-		if err != nil {
-			log.Panic(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while checking for the email"})
+		// check if email or phone number exists
+		filter := bson.M{
+			"$or": bson.A{
+				bson.M{"email": user.Email},
+				bson.M{"phone": user.Phone},
+			},
+		}
+		if count, err := collection.CountDocuments(ctx, filter); err != nil {
+			c.JSON(
+				http.StatusInternalServerError,
+				gin.H{"error": "Error occurred while checking for the email"},
+			)
+			return
+		} else if count != 0 {
+			c.JSON(
+				http.StatusForbidden,
+				gin.H{"error": "This email/phone number already exists. Please contact the support!"},
+			)
 			return
 		}
 
-		password := HashPassword(*user.Password)
-		user.Password = &password
-
-		count, err = userCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
-		defer cancel()
-		if err != nil {
-			log.Panic(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while checking for the phone number"})
-			return
-		}
-
-		if count > 0 {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "this email or phone number already exists"})
-			return
-		}
-
-		user.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-		user.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		// Load info
+		var err error
 		user.ID = primitive.NewObjectID()
-		user.User_id = user.ID.Hex()
-		token, refreshToken, _ := helper.GenerateAllTokens(*user.Email, *user.First_name, *user.Last_name, user.User_id)
-		user.Token = &token
-		user.Refresh_token = &refreshToken
+		if user.Password, err = helper.HashPassword(user.Password); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Era"})
+		}
+		if user.Token, user.RefreshToken, err = helper.GenerateAllTokens(user.Email, user.ID.String(), helper.USER_TYPE_CONSUMER); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Era"})
+		}
+		user.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		user.UpdatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 
-		resultInsertionNumber, insertErr := userCollection.InsertOne(ctx, user)
-		if insertErr != nil {
-			msg := fmt.Sprintf("User item was not created")
-			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		resultInsertionNumber, err := collection.InsertOne(ctx, user)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "User item was not created"})
 			return
 		}
-		defer cancel()
-
 		c.JSON(http.StatusOK, resultInsertionNumber)
-
 	}
 }
 
 // Login is the api used to tget a single user
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		collection := database.GetCollection(database.USERS_COLLECTION)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
 		var user models.User
 		var foundUser models.User
 
@@ -123,25 +114,27 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		err := userCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
-		defer cancel()
+		err := collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "login or passowrd is incorrect"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid login credentials"})
 			return
 		}
 
-		passwordIsValid, msg := VerifyPassword(*user.Password, *foundUser.Password)
+		passwordIsValid, msg := VerifyPassword(user.Password, foundUser.Password)
 		defer cancel()
-		if passwordIsValid != true {
+		if !passwordIsValid {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			return
 		}
 
-		token, refreshToken, _ := helper.GenerateAllTokens(*foundUser.Email, *foundUser.First_name, *foundUser.Last_name, foundUser.User_id)
+		token, refreshToken, _ := helper.GenerateAllTokens(
+			foundUser.Email,
+			foundUser.ID.String(),
+			helper.USER_TYPE_CONSUMER,
+		)
 
-		helper.UpdateAllTokens(token, refreshToken, foundUser.User_id)
+		helper.UpdateAllTokens(token, refreshToken, foundUser.ID.String())
 
 		c.JSON(http.StatusOK, foundUser)
-
 	}
 }
