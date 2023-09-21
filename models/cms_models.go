@@ -1,9 +1,8 @@
 package models
 
-// Destination represents a tourist destination
-// Tourist destinations can be a country, city or a location
+// Location is a geographical/geopolitical area like a city
 
-type Destination struct {
+type Location struct {
 	*CollectionDocument
 
 	Name        string  `json:"name" bson:"name,omitempty"`
@@ -12,4 +11,12 @@ type Destination struct {
 	Description string  `json:"description" bson:"description,omitempty"`
 	ImageURL    string  `json:"image_url" bson:"image_url,omitempty"`
 	CountryCode string  `json:"country_code" bson:"country_code,omitempty"`
+	City        City    `json:"city" bson:"city, omitempty"`
+}
+
+// Destination represents a tourist destination
+// Tourist destinations can be a country, city or a place
+
+type Destination struct {
+	*Location
 }

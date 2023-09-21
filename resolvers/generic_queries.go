@@ -14,3 +14,7 @@ func (r *collectionResolver[T]) FindOneByID(id string) (*T, error) {
 
 	return database.FindOneByID(r.GetCollectionName(), _id, &r.model)
 }
+
+func (r *collectionResolver[T]) FindMany(opts database.PaginationOptions) ([]map[string]interface{}, error) {
+	return database.FindMany(r.GetCollectionName(), r.model, opts)
+}
