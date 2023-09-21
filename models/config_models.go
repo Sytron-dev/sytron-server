@@ -5,7 +5,7 @@ import (
 )
 
 type Country struct {
-	ID           primitive.ObjectID `bson:"_id" json:"_id", omitempty`
+	ID           primitive.ObjectID `bson:"_id"`
 	Name         string             `bson:"name" json:"name"`
 	EnLabel      string             `bson:"en_label" json:"en_label"`
 	Value        string             `bson:"iso2" json:"value"`
@@ -15,7 +15,7 @@ type Country struct {
 }
 
 type City struct {
-	ID          primitive.ObjectID `bson:"_id" json:"_id"`
+	ID          primitive.ObjectID `bson:"_id"`
 	CountryCode string             `bson:"country_iso2" json:"country_code"`
 	Label       string             `bson:"label" json:"label"`
 	Value       string             `bson:"value" json:"value"`

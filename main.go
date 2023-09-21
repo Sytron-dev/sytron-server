@@ -9,11 +9,15 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	port := os.Getenv("PORT")
+	if err := godotenv.Load(".env"); err != nil {
+		panic("Failed to load environment variables")
+	}
 
+	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8000"
 	}
@@ -36,4 +40,5 @@ func main() {
 	router.Use(middleware.Authentication())
 
 	router.Run(":" + port)
+
 }
