@@ -11,12 +11,12 @@ type cmsResolver[T any] struct {
 
 var LocationResolver = cmsResolver[models.Location]{
 	&collectionResolver[models.Location]{
-		collectionName: database.LOCATIONS_COLLECTION,
+		collectionName: database.CMS_COLLECTION_LOCATIONS,
 	},
 }
 
 var DestinationResolver = cmsResolver[models.Destination]{
 	&collectionResolver[models.Destination]{
-		collectionName: database.DESTINATIONS_COLLECTION,
+		collectionName: database.CMS_COLLECTION_DESTINATIONS,
 	},
 }

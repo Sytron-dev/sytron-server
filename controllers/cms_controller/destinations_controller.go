@@ -1,7 +1,6 @@
 package cms_controller
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"sytron-server/controllers/uploads_controller"
@@ -21,30 +20,29 @@ func CreateDestination() gin.HandlerFunc {
 
 		// get json data
 		var body models.Destination
-		if err := ctx.BindJSON(&body); err != nil {
-			logger.Handle(err, "Decoding destination json")
+
+		if err := ctx.ShouldBindJSON(&body); err != nil {
 			resErr := models.ErrorResponse{
 				Message: "There's a problem with your request body",
 				Error:   err,
 			}
+			logger.Handle(err, "Decoding destination json")
 			ctx.JSON(http.StatusBadRequest, resErr)
 			return
 		}
 
-		collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
-
 		body.ID = primitive.NewObjectID()
-		_, err := collection.InsertOne(context.TODO(), body)
 
-		if err != nil {
+		if res, err := resolvers.DestinationResolver.InsertOne(body); err != nil {
+			logger.Handle(err, "Here is where the read fails")
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Message: "Error writing to database",
+				Message: "Failed reading/writing to database",
 				Error:   err,
 			})
-			return
+		} else {
+			ctx.JSON(http.StatusOK, res)
 		}
 
-		ctx.JSON(http.StatusOK, body)
 	}
 }
 
@@ -79,21 +77,7 @@ func GetSingleDestination() gin.HandlerFunc {
 }
 
 func updateOneDestination(id string, data models.Destination) (*models.Destination, error) {
-	_id, _ := primitive.ObjectIDFromHex(id)
-
-	tmpDest := resolvers.DestinationResolver.TODO()
-	tmpDest.SetID(id)
-
-	collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
-	filter := bson.D{{Key: "_id", Value: _id}}
-
-	update := bson.M{"$set": data}
-
-	if _, err := collection.UpdateOne(context.TODO(), filter, update); err != nil {
-		return nil, err
-	}
-
-	return resolvers.DestinationResolver.FindOneByID(id)
+	return resolvers.DestinationResolver.UpdateOne(id, data)
 }
 
 func UpdateDestination() gin.HandlerFunc {
@@ -139,7 +123,10 @@ func UploadDestinationImage() gin.HandlerFunc {
 			return
 		}
 
-		if updatedDest, err := updateOneDestination(id, models.Destination{Location: &models.Location{ImageURL: *imageUrl}}); err != nil {
+		var newDest models.Destination
+		newDest.ImageURL = *imageUrl
+
+		if updatedDest, err := updateOneDestination(id, newDest); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Message: "Failed updating destination",
 				Error:   err,
@@ -153,7 +140,7 @@ func UploadDestinationImage() gin.HandlerFunc {
 func DeleteDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id := ctx.Params.ByName("id")
-		collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
+		collection := database.GetCollection(database.CMS_COLLECTION_DESTINATIONS)
 
 		if _, err := collection.DeleteOne(ctx.Request.Context(), bson.M{"_id": id}); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{

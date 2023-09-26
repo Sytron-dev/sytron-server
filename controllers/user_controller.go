@@ -98,7 +98,7 @@ func SignUp() gin.HandlerFunc {
 	}
 }
 
-// Login is the api used to tget a single user
+// Login is the api used to get a single user
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		collection := database.GetCollection(database.USERS_COLLECTION)
