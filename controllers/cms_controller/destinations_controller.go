@@ -1,4 +1,4 @@
-package destinations_controller
+package cms_controller
 
 import (
 	"context"
@@ -50,30 +50,15 @@ func CreateDestination() gin.HandlerFunc {
 
 func GetDestinations() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
-		// Get destinations collection
-		collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
-
-		// Find all destinations
-		cursor, err := collection.Find(context.TODO(), bson.D{{}})
-		fmt.Println(err)
-		if err != nil {
+		if destinations, err := resolvers.DestinationResolver.FindMany(database.PaginationOptions{}); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Message: "Failed while reading database",
 				Error:   err,
 			})
+			return
+		} else {
+			ctx.JSON(http.StatusOK, destinations)
 		}
-
-		// Decode results into slice
-		var destinations []models.Destination
-		if err := cursor.All(context.TODO(), &destinations); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Message: "Failed transforming data",
-				Error:   err,
-			})
-		}
-
-		ctx.JSON(http.StatusOK, destinations)
 	}
 }
 
@@ -87,18 +72,16 @@ func GetSingleDestination() gin.HandlerFunc {
 				Message: "Error finding document",
 				Error:   err,
 			})
-			return
 		} else {
 			ctx.JSON(http.StatusOK, destination)
 		}
-
 	}
 }
 
 func updateOneDestination(id string, data models.Destination) (*models.Destination, error) {
 	_id, _ := primitive.ObjectIDFromHex(id)
 
-	tmpDest := models.NewDestination()
+	tmpDest := resolvers.DestinationResolver.TODO()
 	tmpDest.SetID(id)
 
 	collection := database.GetCollection(database.DESTINATIONS_COLLECTION)
@@ -110,7 +93,7 @@ func updateOneDestination(id string, data models.Destination) (*models.Destinati
 		return nil, err
 	}
 
-	return tmpDest.FindOneByID()
+	return resolvers.DestinationResolver.FindOneByID(id)
 }
 
 func UpdateDestination() gin.HandlerFunc {
@@ -156,7 +139,7 @@ func UploadDestinationImage() gin.HandlerFunc {
 			return
 		}
 
-		if updatedDest, err := updateOneDestination(id, models.Destination{ImageURL: *imageUrl}); err != nil {
+		if updatedDest, err := updateOneDestination(id, models.Destination{Location: &models.Location{ImageURL: *imageUrl}}); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Message: "Failed updating destination",
 				Error:   err,

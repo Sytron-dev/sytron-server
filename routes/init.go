@@ -6,5 +6,4 @@ func InitRoutes(router *gin.Engine) {
 	initConfigRoutes(router)
 	initUserRoutes(router)
 	initDestinationRoutes(router)
-	InitUploadRoutes(router)
 }
