@@ -24,7 +24,7 @@ func (r *collectionResolver[T]) FindMany(opts database.PaginationOptions) ([]T, 
 // Writing
 
 func (r *collectionResolver[T]) InsertOne(model T) (T, error) {
-	return database.InsertOne[T](r.GetCollectionName(), model)
+	return database.InsertOne(r.GetCollectionName(), model)
 }
 
 func (r *collectionResolver[T]) UpdateOne(id string, model T) (*T, error) {
