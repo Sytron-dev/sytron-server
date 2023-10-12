@@ -40,7 +40,7 @@ const (
 
 	// Events
 	EVENTS_COLLECTION        = "events"
-	EVENT_TICKETS_COLLECTION = "eventTickets"
+	EVENT_TICKETS_COLLECTION = "event_tickets"
 
 	// Configs
 	CITIES_COLLECTION    = "cities"

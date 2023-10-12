@@ -26,6 +26,5 @@ var DestinationResolver = cmsResolver[models.Destination]{
 // Implementation
 
 func (r cmsResolver[T]) InsertOne(model T) (T, error) {
-
 	return database.InsertOne(r.GetCollectionName(), model)
 }

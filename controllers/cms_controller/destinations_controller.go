@@ -9,6 +9,7 @@ import (
 	"sytron-server/models"
 	"sytron-server/resolvers"
 	"sytron-server/storage"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -77,6 +78,7 @@ func GetSingleDestination() gin.HandlerFunc {
 }
 
 func updateOneDestination(id string, data models.Destination) (*models.Destination, error) {
+	data.UpdatedTime = primitive.NewDateTimeFromTime(time.Now())
 	return resolvers.DestinationResolver.UpdateOne(id, data)
 }
 
