@@ -19,14 +19,20 @@ var (
 // ---- Collection names -----------------------------------------------------------------
 const (
 	// Users
-	BACKOFFICERS_COLLECTION = "backofficers"
-	USERS_COLLECTION        = "users"
-	MERCHANTS_COLLECTION    = "merchant"
+	PROFILES_COLLECTION_BACK_OFFICERS = "profiles_back_officers"
+	PROFILES_COLLECTION_USERS         = "profiles_users"
+	USERS_COLLECTION                  = "users" //! deprecated
+	PROFILES_COLLECTION_MERCHANTS     = "profiles_merchants"
+
+	// User Credentials
+	CREDENTIALS_COLLECTION_BACK_OFFICERS = "credentials_back_officers"
+	CREDENTIALS_COLLECTION_USERS         = "credentials_users"
+	CREDENTIALS_COLLECTION_MERCHANTS     = "credentials_merchants"
 
 	// CMS
-	LOCATIONS_COLLECTION    = "locations"
-	DESTINATIONS_COLLECTION = "destinations"
-	ACTIVITIES_COLLECTION   = "activities"
+	CMS_COLLECTION_LOCATIONS    = "cms_locations"
+	CMS_COLLECTION_DESTINATIONS = "cms_destinations"
+	CMS_COLLECTION_ACTIVITIES   = "cms_activities"
 
 	// Provisions (Booking and Recreation)
 	ACCOMMODATIONS_COLLECTION = "accommodations"
@@ -34,7 +40,7 @@ const (
 
 	// Events
 	EVENTS_COLLECTION        = "events"
-	EVENT_TICKETS_COLLECTION = "eventTickets"
+	EVENT_TICKETS_COLLECTION = "event_tickets"
 
 	// Configs
 	CITIES_COLLECTION    = "cities"

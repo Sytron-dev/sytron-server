@@ -11,7 +11,18 @@ import (
 )
 
 // ---- Create operations ----------------------------------------------------------------
-func InsertOne() {}
+func InsertOne[ModelType any](collectionName string, model ModelType) (doc ModelType, err error) {
+	collection := GetCollection(collectionName)
+
+	_, err = collection.InsertOne(context.TODO(), model)
+
+	if err != nil {
+		return
+	}
+
+	doc = model
+	return
+}
 
 // ---- Read Operations ------------------------------------------------------------------
 
@@ -41,7 +52,7 @@ type PaginationOptions struct {
 }
 
 // TODO use valid generics for return type
-func FindMany[ModelType any](collectionName string, model ModelType, paginationOptions PaginationOptions) (docs []map[string]interface{}, err error) {
+func FindMany[ModelType any](collectionName string, model ModelType, paginationOptions PaginationOptions) (docs []ModelType, err error) {
 	log.SetFlags(log.Ldate | log.Lshortfile)
 
 	if paginationOptions.pageSize > 20 || paginationOptions.pageSize < 1 {
@@ -73,12 +84,11 @@ func FindMany[ModelType any](collectionName string, model ModelType, paginationO
 	}
 
 	for cursor.Next(context.TODO()) {
-		var doc map[string]interface{}
-		err := cursor.Decode(&doc)
+		err := cursor.Decode(&model)
 		if err != nil {
 			break
 		}
-		docs = append(docs, doc)
+		docs = append(docs, model)
 	}
 
 	return docs, err
@@ -86,6 +96,35 @@ func FindMany[ModelType any](collectionName string, model ModelType, paginationO
 
 // ---- Update operations ----------------------------------------------------------------
 
+func UpdateOne[ModelType any](collectionName string, _id primitive.ObjectID, model ModelType) (doc ModelType, err error) {
+	log.SetFlags(log.Ldate | log.Lshortfile)
+	log.Printf("Finding %s from %s", _id, collectionName)
+
+	// Get database collection from collectionName
+	collection := GetCollection(collectionName)
+	filter := bson.D{{Key: "_id", Value: _id}}
+	update := bson.D{{Key: "$set", Value: model}}
+
+	// Write the result to an arbitrary interface
+	if _, err = collection.UpdateOne(context.TODO(), filter, update); err != nil {
+		logger.Error(err, "")
+	} else {
+		doc = model
+	}
+
+	return
+}
+
 // ---- Delete operations ----------------------------------------------------------------
 
-func DeleteOne() {}
+func DeleteOne[ModelType any](collectionName string, _id primitive.ObjectID) (err error) {
+
+	collection := GetCollection(collectionName)
+
+	filter := bson.D{{Key: "_id", Value: _id}}
+	opts := options.DeleteOptions{}
+
+	_, err = collection.DeleteOne(context.TODO(), filter, &opts)
+
+	return
+}

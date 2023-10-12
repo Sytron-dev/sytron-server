@@ -19,7 +19,13 @@ type User struct {
 	UpdatedAt    time.Time          `json:"updated_at"`
 }
 
-// type UserCredential struct {
-// 	Email    string `json:"email"`
-// 	Password string `json:"password"`
-// }
+type AuthCredential struct {
+	Credential     string             `json:"credential"`
+	CredentialType string             `json:"credentialType"` // email, phone, sso
+	UserId         primitive.ObjectID `json:"user_id"`
+	Password       string             `json:"password"`
+	RefreshToken   string             `json:"refresh_token"`
+	LastLogin      string             `json:"last_login"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
+}
