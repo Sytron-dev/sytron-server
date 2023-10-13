@@ -3,23 +3,25 @@ package configs_controller
 import (
 	"context"
 	"net/http"
-	"sytron-server/database"
-	"sytron-server/helpers/logger"
-	"sytron-server/models"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"sytron-server/constants"
+	"sytron-server/database"
+	"sytron-server/helpers/logger"
+	"sytron-server/models"
 )
 
 func getCollection(collectionName string) *mongo.Collection {
-	return database.Client.Database(DATABASE_NAME).Collection(collectionName)
+	return database.Client.Database(constants.CONFIGS_DATABASE_NAME).Collection(collectionName)
 }
 
 func GetCountries() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		collection := getCollection(COUNTRIES_COLLECTION)
+		collection := getCollection(constants.COUNTRIES_COLLECTION_NAME)
 		filter := bson.D{{}}
 		option := options.Find()
 
@@ -52,7 +54,7 @@ func GetCities() gin.HandlerFunc {
 			return
 		}
 
-		collection := getCollection(CITIES_COLLECTION)
+		collection := getCollection(constants.CITIES_COLLECTION_NAME)
 		filter := bson.D{{Key: "country_iso2", Value: countryCode}}
 		options := options.Find()
 		options.SetLimit(200)

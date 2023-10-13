@@ -3,13 +3,13 @@ package main
 import (
 	"os"
 
-	middleware "sytron-server/middleware"
-	routes "sytron-server/routes"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
 	"github.com/joho/godotenv"
+
+	middleware "sytron-server/middleware"
+	routes "sytron-server/routes"
 )
 
 func main() {
@@ -34,11 +34,10 @@ func main() {
 		AllowWildcard:    true,
 		AllowFiles:       true,
 	}))
-	routes.InitRoutes(router)
 
-	// @vin, I will need to move this up when I implement authorization
+	routes.InitRoutes(router) // open routes
 	router.Use(middleware.Authentication())
+	routes.InitProtectedRoutes(router) // require authorization
 
 	router.Run(":" + port)
-
 }

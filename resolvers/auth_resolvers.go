@@ -1,20 +1,21 @@
 package resolvers
 
 import (
-	"sytron-server/database"
+	"sytron-server/constants"
 	"sytron-server/models"
 )
 
-var UserAuthCredentialsResolver = collectionResolver[models.AuthCredential]{
-	collectionName: database.CREDENTIALS_COLLECTION_USERS,
+var UserAuthCredentialsResolver = CollectionResolver[models.AuthCredential]{
+	collectionName: constants.CREDENTIALS_COLLECTION_USERS,
 	model:          models.AuthCredential{},
 }
 
-var BackOfficerAuthCredentialsResolver = collectionResolver[models.AuthCredential]{
-	collectionName: database.CREDENTIALS_COLLECTION_USERS,
+var BackOfficerAuthCredentialsResolver = CollectionResolver[models.AuthCredential]{
+	collectionName: constants.CREDENTIALS_COLLECTION_BACK_OFFICERS,
 	model:          models.AuthCredential{},
 }
-var MerchantAuthCredentialsResolver = collectionResolver[models.AuthCredential]{
-	collectionName: database.CREDENTIALS_COLLECTION_USERS,
+
+var MerchantAuthCredentialsResolver = CollectionResolver[models.AuthCredential]{
+	collectionName: constants.CREDENTIALS_COLLECTION_MERCHANTS,
 	model:          models.AuthCredential{},
 }

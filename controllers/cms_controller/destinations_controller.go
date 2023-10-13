@@ -3,22 +3,22 @@ package cms_controller
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"sytron-server/constants"
 	"sytron-server/controllers/uploads_controller"
 	"sytron-server/database"
 	"sytron-server/helpers/logger"
 	"sytron-server/models"
 	"sytron-server/resolvers"
 	"sytron-server/storage"
-	"time"
-
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func CreateDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
 		// get json data
 		var body models.Destination
 
@@ -43,7 +43,6 @@ func CreateDestination() gin.HandlerFunc {
 		} else {
 			ctx.JSON(http.StatusOK, res)
 		}
-
 	}
 }
 
@@ -78,13 +77,12 @@ func GetSingleDestination() gin.HandlerFunc {
 }
 
 func updateOneDestination(id string, data models.Destination) (*models.Destination, error) {
-	data.UpdatedTime = primitive.NewDateTimeFromTime(time.Now())
+	data.UpdateTime()
 	return resolvers.DestinationResolver.UpdateOne(id, data)
 }
 
 func UpdateDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
 		id := ctx.Params.ByName("id")
 
 		// Get updated destination from request body
@@ -99,7 +97,6 @@ func UpdateDestination() gin.HandlerFunc {
 		}
 
 		updatedDest, err := updateOneDestination(id, dest)
-
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Message: "Failed updating destination :(",
@@ -114,12 +111,16 @@ func UpdateDestination() gin.HandlerFunc {
 
 func UploadDestinationImage() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
 		id := ctx.Params.ByName("id")
 
 		fileName := fmt.Sprintf("destinations/%v/image", id)
 
-		imageUrl, errResponse := uploads_controller.UploadFile(ctx, "image", storage.CMSBucketHandle, fileName)
+		imageUrl, errResponse := uploads_controller.UploadFile(
+			ctx,
+			"image",
+			storage.CMSBucketHandle,
+			fileName,
+		)
 		if errResponse != nil {
 			ctx.JSON(http.StatusInternalServerError, errResponse)
 			return
@@ -142,7 +143,7 @@ func UploadDestinationImage() gin.HandlerFunc {
 func DeleteDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id := ctx.Params.ByName("id")
-		collection := database.GetCollection(database.CMS_COLLECTION_DESTINATIONS)
+		collection := database.GetCollection(constants.CMS_COLLECTION_DESTINATIONS)
 
 		if _, err := collection.DeleteOne(ctx.Request.Context(), bson.M{"_id": id}); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
