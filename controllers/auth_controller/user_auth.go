@@ -12,7 +12,7 @@ import (
 
 	"sytron-server/constants"
 	"sytron-server/database"
-	helper "sytron-server/helpers"
+	"sytron-server/helpers"
 	"sytron-server/models"
 )
 
@@ -59,13 +59,13 @@ func LoginUser() gin.HandlerFunc {
 			return
 		}
 
-		token, refreshToken, _ := helper.GenerateAllTokens(
+		token, refreshToken, _ := helpers.GenerateAllTokens(
 			foundUser.Email,
 			foundUser.ID.String(),
 			constants.USER_ROLE_MERCHANT,
 		)
 
-		helper.UpdateAllTokens(token, refreshToken, foundUser.ID.String())
+		helpers.UpdateAllTokens(token, refreshToken, foundUser.ID.String())
 
 		c.JSON(http.StatusOK, foundUser)
 	}

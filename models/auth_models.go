@@ -9,14 +9,14 @@ import (
 type AuthCredential struct {
 	CollectionDocument `bson:",inline"`
 
-	Credential     string             `json:"credential"`
-	CredentialType string             `json:"credential_type"` // email, phone, sso, username
-	Password       string             `json:"password"`
-	BearerToken    string             `json:"bearer_token"`
-	RefreshToken   string             `json:"refresh_token"`
-	LastLogin      primitive.DateTime `json:"last_login,omitempty"`
+	Value        string             `bson:"value"         json:"value"`
+	Type         string             `bson:"type"          json:"type"` // email, phone, sso, username
+	Password     string             `bson:"password"      json:"password"`
+	BearerToken  string             `bson:"bearer_token"  json:"bearer_token"`
+	RefreshToken string             `bson:"refresh_token" json:"refresh_token"`
+	LastLogin    primitive.DateTime `bson:"last_login"    json:"last_login"`
 }
 
-func (doc AuthCredential) UpdateLastLogin() {
+func (doc *AuthCredential) UpdateLastLogin() {
 	doc.LastLogin = primitive.NewDateTimeFromTime(time.Now())
 }

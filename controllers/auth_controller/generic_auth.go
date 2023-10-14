@@ -8,27 +8,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"sytron-server/constants"
-	helpers "sytron-server/helpers"
+	"sytron-server/helpers"
 	"sytron-server/models"
 	"sytron-server/resolvers"
 )
 
 func GetGenericAuthCredentials(
 	role string,
+	resolver resolvers.CollectionResolver[models.AuthCredential],
 ) (CreateAuthCredentials gin.HandlerFunc, Login gin.HandlerFunc) {
-	var resolver resolvers.CollectionResolver[models.AuthCredential]
-
-	switch role {
-	case constants.USER_ROLE_MERCHANT:
-		resolver = resolvers.MerchantAuthCredentialsResolver
-	case constants.USER_ROLE_BACKOFFICER:
-		resolver = resolvers.BackOfficerAuthCredentialsResolver
-	case constants.USER_ROLE_CONSUMER:
-		fallthrough
-	default:
-		resolver = resolvers.UserAuthCredentialsResolver
-	}
-
 	// creates user credentials
 	CreateAuthCredentials = func(ctx *gin.Context) {
 		// get data from request body
@@ -47,7 +35,7 @@ func GetGenericAuthCredentials(
 		}
 
 		// ensure uniqueness
-		filter := bson.M{"credential": credentials.Email}
+		filter := bson.D{{Key: "value", Value: credentials.Email}}
 		if count, err := resolver.CountDocuments(filter); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Message: "Failed checking credential validity",
@@ -64,8 +52,8 @@ func GetGenericAuthCredentials(
 
 		// initialize defaults
 		authCredentials := models.AuthCredential{
-			Credential:     credentials.Email,
-			CredentialType: "email",
+			Value: credentials.Email,
+			Type:  "email",
 			CollectionDocument: models.CollectionDocument{
 				ID: primitive.NewObjectID(),
 			},
@@ -115,9 +103,10 @@ func GetGenericAuthCredentials(
 		}
 
 		// validate Password
-		filter := bson.M{
-			"credential": credentials.Email,
-		}
+		filter := bson.D{{
+			Key:   "value",
+			Value: credentials.Email,
+		}}
 
 		// check if credentials are correct
 		res, err := resolver.FindOne(filter)
@@ -130,7 +119,7 @@ func GetGenericAuthCredentials(
 		}
 
 		// validate password
-		if !helpers.VerifyPassword(credentials.Password, res.Password) {
+		if !helpers.VerifyPassword(res.Password, credentials.Password) {
 			ctx.JSON(http.StatusForbidden, models.ErrorResponse{
 				Message: "Invalid credentials fr",
 				Error:   err,
@@ -141,20 +130,22 @@ func GetGenericAuthCredentials(
 		res.UpdateLastLogin()
 		res.BearerToken, res.RefreshToken, err = helpers.GenerateAllTokens(
 			res.ID.String(),
-			res.Credential,
+			res.Value,
 			constants.USER_ROLE_MERCHANT,
 		)
 
 		// update DB
-		if res, err = resolver.UpdateOne(res.ID.String(), *res); err != nil {
+		if res, err = resolver.UpdateOne(res.ID.Hex(), *res); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Message: "Error updating credentials. You may have to try again or contact support",
+				Message: "Failed updating record on db",
 				Error:   err,
 			})
 			return
 		}
-
-		ctx.JSON(http.StatusOK, res)
+		ctx.JSON(http.StatusOK, bson.M{
+			"bearer_token":  res.BearerToken,
+			"refresh_token": res.RefreshToken,
+		})
 	}
 
 	return

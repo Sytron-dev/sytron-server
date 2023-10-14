@@ -10,6 +10,7 @@ func InitRoutes(router *gin.Engine) {
 
 // Require Authorization
 func InitProtectedRoutes(router *gin.Engine) {
+	initProtectedAuthRoutes(router)
 	initUserRoutes(router)
 	initDestinationRoutes(router)
 }

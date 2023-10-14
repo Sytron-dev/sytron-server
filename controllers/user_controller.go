@@ -13,7 +13,7 @@ import (
 
 	"sytron-server/constants"
 	"sytron-server/database"
-	helper "sytron-server/helpers"
+	"sytron-server/helpers"
 	"sytron-server/models"
 )
 
@@ -79,10 +79,10 @@ func SignUp() gin.HandlerFunc {
 		// Load info
 		var err error
 		user.ID = primitive.NewObjectID()
-		if user.Password, err = helper.HashPassword(user.Password); err != nil {
+		if user.Password, err = helpers.HashPassword(user.Password); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Era"})
 		}
-		if user.Token, user.RefreshToken, err = helper.GenerateAllTokens(
+		if user.Token, user.RefreshToken, err = helpers.GenerateAllTokens(
 			user.Email,
 			user.ID.String(),
 			constants.USER_ROLE_CONSUMER,
@@ -131,13 +131,13 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		token, refreshToken, _ := helper.GenerateAllTokens(
+		token, refreshToken, _ := helpers.GenerateAllTokens(
 			foundUser.Email,
 			foundUser.ID.String(),
 			constants.USER_ROLE_CONSUMER,
 		)
 
-		helper.UpdateAllTokens(token, refreshToken, foundUser.ID.String())
+		helpers.UpdateAllTokens(token, refreshToken, foundUser.ID.String())
 
 		c.JSON(http.StatusOK, foundUser)
 	}

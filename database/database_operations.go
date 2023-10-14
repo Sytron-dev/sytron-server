@@ -119,7 +119,7 @@ func UpdateOne[ModelType any](
 	model ModelType,
 ) (doc ModelType, err error) {
 	log.SetFlags(log.Ldate | log.Lshortfile)
-	log.Printf("Finding %s from %s", _id, collectionName)
+	log.Printf("Updating %s from %s", _id, collectionName)
 
 	// Get database collection from collectionName
 	collection := GetCollection(collectionName)
@@ -128,7 +128,7 @@ func UpdateOne[ModelType any](
 
 	// Write the result to an arbitrary interface
 	if _, err = collection.UpdateOne(context.TODO(), filter, update); err != nil {
-		logger.Error(err, "")
+		logger.Error(err, "write error")
 	} else {
 		doc = model
 	}
