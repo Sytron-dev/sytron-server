@@ -1,17 +1,19 @@
-package helper
+package helpers
 
 import (
 	"context"
 	"fmt"
 	"log"
 	"os"
-	"sytron-server/database"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"sytron-server/constants"
+	"sytron-server/database"
 )
 
 // SignedDetails
@@ -25,7 +27,11 @@ type SignedDetails struct {
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
 // GenerateAllTokens generates both teh detailed token and refresh token
-func GenerateAllTokens(uid string, email string, role string) (signedToken string, signedRefreshToken string, err error) {
+func GenerateAllTokens(
+	uid string,
+	email string,
+	role string,
+) (signedToken string, signedRefreshToken string, err error) {
 	// Create claims for access token
 	now := time.Now()
 	expireTime := now.Add(time.Minute * 15)
@@ -65,7 +71,6 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 			return []byte(SECRET_KEY), nil
 		},
 	)
-
 	if err != nil {
 		msg = err.Error()
 		return
@@ -83,15 +88,15 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 
 // UpdateAllTokens renews the user tokens when they login
 func UpdateAllTokens(signedToken string, signedRefreshToken string, userId string) {
-	collection := database.GetCollection(database.USERS_COLLECTION)
+	collection := database.GetCollection(constants.USERS_COLLECTION)
 
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
 	var updateObj primitive.D
 
-	updateObj = append(updateObj, bson.E{"token", signedToken})
-	updateObj = append(updateObj, bson.E{"refresh_token", signedRefreshToken})
+	updateObj = append(updateObj, bson.E{Key: "token", Value: signedToken})
+	updateObj = append(updateObj, bson.E{Key: "refresh_token", Value: signedRefreshToken})
 
 	upsert := true
 	filter := bson.M{"user_id": userId}
@@ -103,7 +108,7 @@ func UpdateAllTokens(signedToken string, signedRefreshToken string, userId strin
 		ctx,
 		filter,
 		bson.D{
-			{"$set", updateObj},
+			{Key: "$set", Value: updateObj},
 		},
 		&opt,
 	)

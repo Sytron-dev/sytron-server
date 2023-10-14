@@ -3,11 +3,12 @@ package database
 import (
 	"context"
 	"log"
-	"sytron-server/helpers/logger"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"sytron-server/helpers/logger"
 )
 
 // ---- Create operations ----------------------------------------------------------------
@@ -26,13 +27,16 @@ func InsertOne[ModelType any](collectionName string, model ModelType) (doc Model
 
 // ---- Read Operations ------------------------------------------------------------------
 
-func FindOneByID[ModelType any](collectionName string, _id primitive.ObjectID, model ModelType) (doc ModelType, err error) {
+func FindOne[ModelType any](
+	collectionName string,
+	filter interface{},
+	model ModelType,
+) (doc ModelType, err error) {
 	log.SetFlags(log.Ldate | log.Lshortfile)
-	log.Printf("Finding %s from %s", _id, collectionName)
+	log.Printf("Finding %v from %s", filter, collectionName)
 
 	// Get database collection from collectionName
 	collection := GetCollection(collectionName)
-	filter := bson.D{{Key: "_id", Value: _id}}
 
 	// Write the result to an arbitrary interface
 	if err = collection.FindOne(context.TODO(), filter).Decode(model); err != nil {
@@ -45,6 +49,15 @@ func FindOneByID[ModelType any](collectionName string, _id primitive.ObjectID, m
 	return
 }
 
+func FindOneByID[ModelType any](
+	collectionName string,
+	_id primitive.ObjectID,
+	model ModelType,
+) (doc ModelType, err error) {
+	filter := bson.D{{Key: "_id", Value: _id}}
+	return FindOne[ModelType](collectionName, filter, model)
+}
+
 type PaginationOptions struct {
 	pageSize   int64
 	pageNumber int64
@@ -52,7 +65,11 @@ type PaginationOptions struct {
 }
 
 // TODO use valid generics for return type
-func FindMany[ModelType any](collectionName string, model ModelType, paginationOptions PaginationOptions) (docs []ModelType, err error) {
+func FindMany[ModelType any](
+	collectionName string,
+	model ModelType,
+	paginationOptions PaginationOptions,
+) (docs []ModelType, err error) {
 	log.SetFlags(log.Ldate | log.Lshortfile)
 
 	if paginationOptions.pageSize > 20 || paginationOptions.pageSize < 1 {
@@ -66,7 +83,7 @@ func FindMany[ModelType any](collectionName string, model ModelType, paginationO
 	}
 
 	log.Printf("Finding many from %s of type %T\n", collectionName, docs)
-	log.Printf("					: %v", paginationOptions)
+	log.Printf("                : %v", paginationOptions)
 
 	// get  database collection from collectionName
 	collection := GetCollection(collectionName)
@@ -96,9 +113,13 @@ func FindMany[ModelType any](collectionName string, model ModelType, paginationO
 
 // ---- Update operations ----------------------------------------------------------------
 
-func UpdateOne[ModelType any](collectionName string, _id primitive.ObjectID, model ModelType) (doc ModelType, err error) {
+func UpdateOne[ModelType any](
+	collectionName string,
+	_id primitive.ObjectID,
+	model ModelType,
+) (doc ModelType, err error) {
 	log.SetFlags(log.Ldate | log.Lshortfile)
-	log.Printf("Finding %s from %s", _id, collectionName)
+	log.Printf("Updating %s from %s", _id, collectionName)
 
 	// Get database collection from collectionName
 	collection := GetCollection(collectionName)
@@ -107,7 +128,7 @@ func UpdateOne[ModelType any](collectionName string, _id primitive.ObjectID, mod
 
 	// Write the result to an arbitrary interface
 	if _, err = collection.UpdateOne(context.TODO(), filter, update); err != nil {
-		logger.Error(err, "")
+		logger.Error(err, "write error")
 	} else {
 		doc = model
 	}
@@ -118,7 +139,6 @@ func UpdateOne[ModelType any](collectionName string, _id primitive.ObjectID, mod
 // ---- Delete operations ----------------------------------------------------------------
 
 func DeleteOne[ModelType any](collectionName string, _id primitive.ObjectID) (err error) {
-
 	collection := GetCollection(collectionName)
 
 	filter := bson.D{{Key: "_id", Value: _id}}

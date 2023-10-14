@@ -11,14 +11,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 
+	"sytron-server/constants"
 	"sytron-server/database"
-	helper "sytron-server/helpers"
+	"sytron-server/helpers"
 	"sytron-server/models"
 )
 
-var (
-	validate = validator.New()
-)
+var validate = validator.New()
 
 // VerifyPassword checks the input password while verifying it with the password in the DB.
 func VerifyPassword(userPassword string, providedPassword string) (check bool, msg string) {
@@ -35,7 +34,7 @@ func VerifyPassword(userPassword string, providedPassword string) (check bool, m
 // CreateUser is the api used to get a single user
 func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		collection := database.GetCollection(database.USERS_COLLECTION)
+		collection := database.GetCollection(constants.USERS_COLLECTION)
 
 		// initialise variables for this scope
 		var user models.User
@@ -80,14 +79,19 @@ func SignUp() gin.HandlerFunc {
 		// Load info
 		var err error
 		user.ID = primitive.NewObjectID()
-		if user.Password, err = helper.HashPassword(user.Password); err != nil {
+		if user.Password, err = helpers.HashPassword(user.Password); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Era"})
 		}
-		if user.Token, user.RefreshToken, err = helper.GenerateAllTokens(user.Email, user.ID.String(), helper.USER_TYPE_CONSUMER); err != nil {
+		if user.Token, user.RefreshToken, err = helpers.GenerateAllTokens(
+			user.Email,
+			user.ID.String(),
+			constants.USER_ROLE_CONSUMER,
+		); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Era"})
+			return
 		}
-		user.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-		user.UpdatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+
+		user.InsertTime()
 
 		resultInsertionNumber, err := collection.InsertOne(ctx, user)
 		if err != nil {
@@ -101,7 +105,7 @@ func SignUp() gin.HandlerFunc {
 // Login is the api used to get a single user
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		collection := database.GetCollection(database.USERS_COLLECTION)
+		collection := database.GetCollection(constants.USERS_COLLECTION)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
@@ -127,13 +131,13 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		token, refreshToken, _ := helper.GenerateAllTokens(
+		token, refreshToken, _ := helpers.GenerateAllTokens(
 			foundUser.Email,
 			foundUser.ID.String(),
-			helper.USER_TYPE_CONSUMER,
+			constants.USER_ROLE_CONSUMER,
 		)
 
-		helper.UpdateAllTokens(token, refreshToken, foundUser.ID.String())
+		helpers.UpdateAllTokens(token, refreshToken, foundUser.ID.String())
 
 		c.JSON(http.StatusOK, foundUser)
 	}

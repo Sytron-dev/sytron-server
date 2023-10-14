@@ -1,4 +1,4 @@
-package helper
+package helpers
 
 import (
 	"errors"
@@ -8,12 +8,6 @@ import (
 )
 
 // Roles
-
-const (
-	USER_TYPE_CONSUMER    = "consumer"
-	USER_TYPE_MERCHANT    = "merchant"
-	USER_TYPE_BACKOFFICER = "backofficer"
-)
 
 // CheckUserType renews the user tokens when they login
 func CheckUserType(c *gin.Context, role string) (err error) {
@@ -39,4 +33,9 @@ func MatchUserTypeToUid(c *gin.Context, userId string) (err error) {
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
+}
+
+// returns true if password is correct
+func VerifyPassword(hashedPassword, password string) (isValid bool) {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }

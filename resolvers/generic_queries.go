@@ -1,14 +1,16 @@
 package resolvers
 
 import (
-	"sytron-server/database"
+	"context"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"sytron-server/database"
 )
 
 // Reading
 
-func (r *collectionResolver[T]) FindOneByID(id string) (*T, error) {
+func (r *CollectionResolver[T]) FindOneByID(id string) (*T, error) {
 	_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -17,17 +19,26 @@ func (r *collectionResolver[T]) FindOneByID(id string) (*T, error) {
 	return database.FindOneByID(r.GetCollectionName(), _id, &r.model)
 }
 
-func (r *collectionResolver[T]) FindMany(opts database.PaginationOptions) ([]T, error) {
+func (r *CollectionResolver[T]) FindOne(filter interface{}) (*T, error) {
+	return database.FindOne(r.GetCollectionName(), filter, &r.model)
+}
+
+func (r *CollectionResolver[T]) FindMany(opts database.PaginationOptions) ([]T, error) {
 	return database.FindMany(r.GetCollectionName(), r.model, opts)
+}
+
+func (r *CollectionResolver[T]) CountDocuments(filter interface{}) (count int64, err error) {
+	count, err = r.GetCollection().CountDocuments(context.TODO(), filter)
+	return
 }
 
 // Writing
 
-func (r *collectionResolver[T]) InsertOne(model T) (T, error) {
-	return database.InsertOne[T](r.GetCollectionName(), model)
+func (r *CollectionResolver[T]) InsertOne(model T) (T, error) {
+	return database.InsertOne(r.GetCollectionName(), model)
 }
 
-func (r *collectionResolver[T]) UpdateOne(id string, model T) (*T, error) {
+func (r *CollectionResolver[T]) UpdateOne(id string, model T) (*T, error) {
 	_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -37,8 +48,7 @@ func (r *collectionResolver[T]) UpdateOne(id string, model T) (*T, error) {
 
 // Destructive
 
-func (r *collectionResolver[T]) DeleteOne(id string) (err error) {
-
+func (r *CollectionResolver[T]) DeleteOne(id string) (err error) {
 	_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return
