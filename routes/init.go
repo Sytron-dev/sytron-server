@@ -1,6 +1,8 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 // Open routes, do not require authorization
 func InitRoutes(router *gin.Engine) {
@@ -13,4 +15,5 @@ func InitProtectedRoutes(router *gin.Engine) {
 	initProtectedAuthRoutes(router)
 	initUserRoutes(router)
 	initDestinationRoutes(router)
+	initProtectedEventRoutes(router)
 }
