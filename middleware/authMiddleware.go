@@ -12,7 +12,7 @@ import (
 // Authz validates token and authorizes users
 func Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		clientToken := c.Request.Header.Get("token")
+		clientToken := c.Request.Header.Get("Token")
 		if clientToken == "" {
 			c.JSON(
 				http.StatusInternalServerError,
@@ -24,7 +24,7 @@ func Authentication() gin.HandlerFunc {
 
 		claims, err := helpers.ValidateToken(clientToken)
 		if err != "" {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err, "claims": claims})
 			c.Abort()
 			return
 		}

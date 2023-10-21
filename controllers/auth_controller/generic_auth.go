@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"sytron-server/constants"
 	"sytron-server/helpers"
 	"sytron-server/models"
 	"sytron-server/resolvers"
@@ -17,7 +16,8 @@ func GetGenericAuthCredentials(
 	role string,
 	resolver resolvers.CollectionResolver[models.AuthCredential],
 ) (CreateAuthCredentials gin.HandlerFunc, Login gin.HandlerFunc) {
-	// creates user credentials
+
+	// creates user credentials ----------------------------------------------------
 	CreateAuthCredentials = func(ctx *gin.Context) {
 		// get data from request body
 		type Credentials struct {
@@ -84,7 +84,7 @@ func GetGenericAuthCredentials(
 		ctx.JSON(http.StatusOK, res)
 	}
 
-	// returns user credentials
+	// returns user credentials ------------------------------------------------------
 	Login = func(ctx *gin.Context) {
 		// get data from request body
 
@@ -131,7 +131,7 @@ func GetGenericAuthCredentials(
 		res.BearerToken, res.RefreshToken, err = helpers.GenerateAllTokens(
 			res.ID.String(),
 			res.Value,
-			constants.USER_ROLE_MERCHANT,
+			role,
 		)
 
 		// update DB

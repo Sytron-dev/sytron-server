@@ -34,7 +34,7 @@ func GenerateAllTokens(
 ) (signedToken string, signedRefreshToken string, err error) {
 	// Create claims for access token
 	now := time.Now()
-	expireTime := now.Add(time.Minute * 15)
+	expireTime := now.Add(time.Hour * 24)
 	claims := SignedDetails{
 		Email: email,
 		ID:    uid,
@@ -71,8 +71,10 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 			return []byte(SECRET_KEY), nil
 		},
 	)
+
 	if err != nil {
 		msg = err.Error()
+		print("is this the real life")
 		return
 	}
 

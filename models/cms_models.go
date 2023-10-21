@@ -1,11 +1,16 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"sytron-server/types"
+)
 
 // Location is a geographical/geopolitical area like a city
 
 type Location struct {
 	CollectionDocument `bson:",inline"`
+	types.Coordinates
 
 	Name        string             `json:"name"         bson:"name,omitempty"`
 	Latitude    float64            `json:"lat"          bson:"lat,omitempty"`
