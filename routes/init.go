@@ -7,13 +7,14 @@ import (
 // Open routes, do not require authorization
 func InitRoutes(router *gin.Engine) {
 	initAuthRoutes(router)
+	initUserRoutes(router)
 	initConfigRoutes(router)
+	initCMSRoutes(router)
 }
 
 // Require Authorization
 func InitProtectedRoutes(router *gin.Engine) {
 	initProtectedAuthRoutes(router)
-	initUserRoutes(router)
-	initDestinationRoutes(router)
+	initProtectedCMSRoutes(router)
 	initProtectedEventRoutes(router)
 }

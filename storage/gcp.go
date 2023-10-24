@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"os"
 
 	"cloud.google.com/go/storage"
 	"google.golang.org/api/option"
@@ -20,4 +21,5 @@ func initGCP() *storage.Client {
 
 var StorageClient = initGCP()
 
-var CMSBucketHandle = StorageClient.Bucket("stride-cms")
+var cmsBucketName = os.Getenv("CMS_BUCKET")
+var CMSBucketHandle = StorageClient.Bucket(cmsBucketName)

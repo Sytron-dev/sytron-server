@@ -11,3 +11,8 @@ type User struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refresh_token"`
 }
+
+type BackOfficer struct {
+	Email     string
+	LastLogin string
+}

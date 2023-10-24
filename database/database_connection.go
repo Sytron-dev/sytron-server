@@ -18,6 +18,7 @@ func DBinstance() *mongo.Client {
 		options.Client().ApplyURI(constants.MONGODB_CONNECTION_STRING),
 	)
 	if err != nil {
+		log.Printf("str %v", constants.MONGODB_CONNECTION_STRING)
 		log.Fatal(err)
 	}
 
