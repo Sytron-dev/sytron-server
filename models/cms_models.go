@@ -10,15 +10,14 @@ import (
 
 type Location struct {
 	CollectionDocument `bson:",inline"`
-	types.Coordinates
+	types.Coordinates  `bson:",omitempty" json:"coordinates"`
 
-	Name        string             `json:"name"         bson:"name,omitempty"`
-	Latitude    float64            `json:"lat"          bson:"lat,omitempty"`
-	Longitude   float64            `json:"lon"          bson:"lon,omitempty"`
-	Description string             `json:"description"  bson:"description,omitempty"`
-	ImageURL    string             `json:"image_url"    bson:"image_url,omitempty"`
-	CountryCode string             `json:"country_code" bson:"country_code,omitempty"`
-	CityID      primitive.ObjectID `json:"city_id"      bson:"city_id,omitempty"`
+	Name        string             `bson:"name,omitempty"         json:"name"`
+	OneLiner    string             `bson:"one_liner,omitempty"    json:"one_liner"`
+	Description string             `bson:"description,omitempty"  json:"description"`
+	ImageURL    string             `bson:"image_url,omitempty"    json:"image_url"`
+	CountryCode string             `bson:"country_code,omitempty" json:"country_code"`
+	CityID      primitive.ObjectID `bson:"city_id,omitempty"      json:"city_id"`
 }
 
 // Destination represents a tourist destination

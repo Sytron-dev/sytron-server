@@ -6,8 +6,8 @@ import (
 	controller "sytron-server/controllers/event_controllers"
 )
 
-func initEventRoutes() {
-
+func initEventRoutes(router *gin.Engine) {
+	router.GET("/events/:id", controller.GetSingleEvent())
 }
 
 func initProtectedEventRoutes(router *gin.Engine) {

@@ -10,6 +10,7 @@ func InitRoutes(router *gin.Engine) {
 	initUserRoutes(router)
 	initConfigRoutes(router)
 	initCMSRoutes(router)
+	initEventRoutes(router)
 }
 
 // Require Authorization
