@@ -6,6 +6,12 @@ import (
 	"sytron-server/types"
 )
 
+type Asset struct {
+	Url    string `bson:"url"    json:"url"`
+	Format string `bson:"format" json:"format"`
+	Alt    string `bson:"alt"    json:"alt"`
+}
+
 // Location is a geographical/geopolitical area like a city
 
 type Location struct {

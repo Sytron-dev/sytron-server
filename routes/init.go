@@ -17,5 +17,6 @@ func InitRoutes(router *gin.Engine) {
 func InitProtectedRoutes(router *gin.Engine) {
 	initProtectedAuthRoutes(router)
 	initProtectedCMSRoutes(router)
+	initProtectedCompanyRoutes(router)
 	initProtectedEventRoutes(router)
 }

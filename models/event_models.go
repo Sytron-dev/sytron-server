@@ -14,14 +14,14 @@ type Event struct {
 	LocationID  primitive.ObjectID `bson:"location_id"  json:"location_id"`
 	CountryCode string             `bson:"country_code" json:"country_code"`
 
-	Title        string             `bson:"title"          json:"title"`
-	StartTime    primitive.DateTime `bson:"start_time"     json:"start_time"`
-	EndTime      primitive.DateTime `bson:"end_time"       json:"end_time"`
-	OneLiner     string             `bson:"one_liner"      json:"one_liner"`
-	Description  string             `bson:"description"    json:"description"`
-	HeroImageUrl string             `bson:"hero_image_url" json:"hero_image_url"`
-	Prices       []EventPrice       `bson:"prices"         json:"prices"`
-	Assets       []EventAsset       `bson:"assets"         json:"assets"`
+	Title        string             `bson:"title"       json:"title"`
+	StartTime    primitive.DateTime `bson:"start_time"  json:"start_time"`
+	EndTime      primitive.DateTime `bson:"end_time"    json:"end_time"`
+	OneLiner     string             `bson:"one_liner"   json:"one_liner"`
+	Description  string             `bson:"description" json:"description"`
+	HeroImageUrl string             `bson:"image_url"   json:"image_url"`
+	Prices       []EventPrice       `bson:"prices"      json:"prices"`
+	Assets       []Asset            `bson:"assets"      json:"assets"`
 }
 
 type EventPrice struct {
@@ -29,9 +29,4 @@ type EventPrice struct {
 	Amount      float32 `bson:"amount"      json:"amount"`
 	Title       string  `bson:"title"       json:"title"`
 	Description string  `bson:"description" json:"description"`
-}
-
-type EventAsset struct {
-	Url    string `bson:"url"    json:"url"`
-	Format string `bson:"format" json:"format"`
 }

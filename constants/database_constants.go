@@ -46,6 +46,9 @@ const (
 	CMS_COLLECTION_DESTINATIONS = "cms_destinations"
 	CMS_COLLECTION_ACTIVITIES   = "cms_activities"
 
+	// Company
+	COMPANIES_COLLECTION = "companies"
+
 	// Provisions (Booking and Recreation)
 	ACCOMMODATIONS_COLLECTION = "accommodations"
 	EXPERIENCES_COLLECTION    = "experiences"

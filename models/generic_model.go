@@ -21,3 +21,7 @@ func (doc *CollectionDocument) InsertTime() {
 func (doc *CollectionDocument) UpdateTime() {
 	doc.UpdatedTime = primitive.NewDateTimeFromTime(time.Now())
 }
+
+func (doc *CollectionDocument) SetID() {
+	doc.ID = primitive.NewObjectID()
+}

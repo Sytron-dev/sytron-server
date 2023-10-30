@@ -5,10 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"sytron-server/constants"
 	"sytron-server/controllers/uploads_controller"
 	"sytron-server/database"
 	"sytron-server/helpers/logger"
@@ -53,7 +51,6 @@ func GetDestinations() gin.HandlerFunc {
 				Message: "Failed while reading database",
 				Error:   err,
 			})
-			return
 		} else {
 			ctx.JSON(http.StatusOK, destinations)
 		}
@@ -96,16 +93,14 @@ func UpdateDestination() gin.HandlerFunc {
 			return
 		}
 
-		updatedDest, err := updateOneDestination(id, dest)
-		if err != nil {
+		if updatedDest, err := updateOneDestination(id, dest); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Message: "Failed updating destination :(",
+				Message: "Failed updating destination",
 				Error:   err,
 			})
-			return
+		} else {
+			ctx.JSON(http.StatusOK, updatedDest)
 		}
-
-		ctx.JSON(http.StatusOK, updatedDest)
 	}
 }
 
@@ -143,9 +138,8 @@ func UploadDestinationImage() gin.HandlerFunc {
 func DeleteDestination() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id := ctx.Params.ByName("id")
-		collection := database.GetCollection(constants.CMS_COLLECTION_DESTINATIONS)
 
-		if _, err := collection.DeleteOne(ctx.Request.Context(), bson.M{"_id": id}); err != nil {
+		if err := resolvers.DestinationResolver.DeleteOne(id); err != nil {
 			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Message: "Failed deleting destination",
 				Error:   err,

@@ -16,7 +16,6 @@ func GetGenericAuthCredentials(
 	role string,
 	resolver resolvers.CollectionResolver[models.AuthCredential],
 ) (CreateAuthCredentials gin.HandlerFunc, Login gin.HandlerFunc) {
-
 	// creates user credentials ----------------------------------------------------
 	CreateAuthCredentials = func(ctx *gin.Context) {
 		// get data from request body
