@@ -71,10 +71,8 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 			return []byte(SECRET_KEY), nil
 		},
 	)
-
 	if err != nil {
 		msg = err.Error()
-		print("is this the real life")
 		return
 	}
 

@@ -15,7 +15,6 @@ import (
 )
 
 func CreateEvent() gin.HandlerFunc {
-
 	return func(ctx *gin.Context) {
 		// get json data
 		var body models.Event
@@ -136,7 +135,6 @@ func UploadEventHeroImage() gin.HandlerFunc {
 			})
 		} else {
 			ctx.JSON(http.StatusOK, updatedEvent)
-
 		}
 	}
 }

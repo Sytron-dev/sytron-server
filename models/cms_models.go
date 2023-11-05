@@ -7,9 +7,9 @@ import (
 )
 
 type Asset struct {
-	Url    string `bson:"url"    json:"url"`
-	Format string `bson:"format" json:"format"`
-	Alt    string `bson:"alt"    json:"alt"`
+	Url    string `bson:"url,omitempty"    json:"url"`
+	Format string `bson:"format,omitempty" json:"format"`
+	Alt    string `bson:"alt,omitempty"    json:"alt"`
 }
 
 // Location is a geographical/geopolitical area like a city
