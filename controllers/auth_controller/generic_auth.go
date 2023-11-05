@@ -3,21 +3,22 @@ package auth_controller
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"sytron-server/helpers"
 	"sytron-server/models"
 	"sytron-server/resolvers"
+	"sytron-server/types"
 )
 
 func GetGenericAuthCredentials(
 	role string,
 	resolver resolvers.CollectionResolver[models.AuthCredential],
-) (CreateAuthCredentials gin.HandlerFunc, Login gin.HandlerFunc) {
+) (CreateAuthCredentials types.HandlerFunc, Login types.HandlerFunc) {
 	// creates user credentials ----------------------------------------------------
-	CreateAuthCredentials = func(ctx *gin.Context) {
+	CreateAuthCredentials = func(ctx *fiber.Ctx) error {
 		// get data from request body
 		type Credentials struct {
 			Email string `json:"email"`
@@ -25,28 +26,28 @@ func GetGenericAuthCredentials(
 
 		var credentials Credentials
 
-		if err := ctx.BindJSON(&credentials); err != nil {
-			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+		if err := ctx.BodyParser(&credentials); err != nil {
+			ctx.Status(http.StatusBadRequest)
+			ctx.JSON(models.ErrorResponse{
 				Message: "Failed to parse body",
 				Error:   err,
 			})
-			return
 		}
 
 		// ensure uniqueness
 		filter := bson.D{{Key: "value", Value: credentials.Email}}
 		if count, err := resolver.CountDocuments(filter); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(types.ErrorResponse{
 				Message: "Failed checking credential validity",
 				Error:   err,
 			})
-			return
 		} else if count > 0 {
-			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(types.ErrorResponse{
 				Message: "This user exists",
 				Error:   nil,
 			})
-			return
 		}
 
 		// initialize defaults
@@ -61,11 +62,11 @@ func GetGenericAuthCredentials(
 
 		// set default password
 		if pwd, err := helpers.HashPassword("super.secret.shhh!"); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(types.ErrorResponse{
 				Message: "Failed generating password",
 				Error:   err,
 			})
-			return
 		} else {
 			authCredentials.Password = pwd
 		}
@@ -73,18 +74,19 @@ func GetGenericAuthCredentials(
 		// add credentials to database
 		res, err := resolver.InsertOne(authCredentials)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(types.ErrorResponse{
 				Message: "Failed creating backofficer",
 				Error:   err,
 			})
-			return
+
 		}
 		// return credentials
-		ctx.JSON(http.StatusOK, res)
+		return ctx.JSON(res)
 	}
 
 	// returns user credentials ------------------------------------------------------
-	Login = func(ctx *gin.Context) {
+	Login = func(ctx *fiber.Ctx) error {
 		// get data from request body
 
 		type LoginCredentials struct {
@@ -93,12 +95,13 @@ func GetGenericAuthCredentials(
 		}
 
 		var credentials LoginCredentials
-		if err := ctx.BindJSON(&credentials); err != nil {
-			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+		if err := ctx.BodyParser(&credentials); err != nil {
+			ctx.Status(http.StatusBadRequest)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed to parse body",
 				Error:   err,
 			})
-			return
+
 		}
 
 		// validate Password
@@ -110,20 +113,21 @@ func GetGenericAuthCredentials(
 		// check if credentials are correct
 		res, err := resolver.FindOne(filter)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Invalid credentials",
 				Error:   err,
 			})
-			return
+
 		}
 
 		// validate password
 		if !helpers.VerifyPassword(res.Password, credentials.Password) {
-			ctx.JSON(http.StatusForbidden, models.ErrorResponse{
+			ctx.Status(http.StatusBadRequest)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Invalid credentials fr",
 				Error:   err,
 			})
-			return
 		}
 		// update credentials
 		res.UpdateLastLogin()
@@ -135,13 +139,14 @@ func GetGenericAuthCredentials(
 
 		// update DB
 		if res, err = resolver.UpdateOne(res.ID.Hex(), *res); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed updating record on db",
 				Error:   err,
 			})
-			return
+
 		}
-		ctx.JSON(http.StatusOK, bson.M{
+		return ctx.JSON(bson.M{
 			"bearer_token":  res.BearerToken,
 			"refresh_token": res.RefreshToken,
 		})

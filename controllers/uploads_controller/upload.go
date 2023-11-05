@@ -2,23 +2,25 @@ package uploads_controller
 
 import (
 	"io"
+	"net/http"
 	"sytron-server/models"
 
 	cloud_storage "cloud.google.com/go/storage"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"google.golang.org/appengine"
 )
 
 func UploadFile(
 
-	ctx *gin.Context,
+	ctx *fiber.Ctx,
 	key string,
 	bucketHandle *cloud_storage.BucketHandle,
 	filePath string,
 
 ) (*string, *models.ErrorResponse) {
 
-	f, _, err := ctx.Request.FormFile(key)
+	fileHeader, _ := ctx.FormFile(key)
+	f, err := fileHeader.Open()
 
 	if err != nil {
 		return nil, &models.ErrorResponse{
@@ -26,9 +28,8 @@ func UploadFile(
 			Error:   err,
 		}
 	}
-	defer f.Close()
 
-	appengineCtx := appengine.NewContext(ctx.Request)
+	appengineCtx := appengine.NewContext(&http.Request{})
 
 	sw := bucketHandle.Object(filePath).NewWriter(appengineCtx)
 

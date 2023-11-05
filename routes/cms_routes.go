@@ -1,21 +1,21 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 
 	controller "sytron-server/controllers/cms_controller"
 )
 
-func initCMSRoutes(router *gin.Engine) {
+func initCMSRoutes(router *fiber.App) {
 	// destinations
-	router.GET("/destinations", controller.GetDestinations())
-	router.GET("/destinations/:id", controller.GetSingleDestination())
+	router.Get("/destinations", controller.GetDestinations())
+	router.Get("/destinations/:id", controller.GetSingleDestination())
 }
 
-func initProtectedCMSRoutes(router *gin.Engine) {
+func initProtectedCMSRoutes(router *fiber.App) {
 	// destinations
-	router.POST("/destinations", controller.CreateDestination())
-	router.PUT("/destinations/:id", controller.UpdateDestination())
-	router.PUT("/destinations/:id/upload/image", controller.UploadDestinationImage())
-	router.DELETE("/destinations/:id", controller.DeleteDestination())
+	router.Post("/destinations", controller.CreateDestination())
+	router.Put("/destinations/:id", controller.UpdateDestination())
+	router.Put("/destinations/:id/upload/image", controller.UploadDestinationImage())
+	router.Delete("/destinations/:id", controller.DeleteDestination())
 }

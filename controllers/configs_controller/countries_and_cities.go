@@ -4,23 +4,23 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"sytron-server/constants"
 	"sytron-server/database"
-	"sytron-server/helpers/logger"
 	"sytron-server/models"
+	"sytron-server/types"
 )
 
 func getCollection(collectionName string) *mongo.Collection {
 	return database.Client.Database(constants.CONFIGS_DATABASE_NAME).Collection(collectionName)
 }
 
-func GetCountries() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func GetCountries() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		collection := getCollection(constants.COUNTRIES_COLLECTION_NAME)
 		filter := bson.D{{}}
 		option := options.Find()
@@ -28,31 +28,24 @@ func GetCountries() gin.HandlerFunc {
 		// Find all countries
 		cursor, err := collection.Find(context.TODO(), filter, option)
 		if err != nil {
-			logger.Handle(err, "Fetching countries array")
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Internal server error",
 				Error:   err,
 			})
-		} else {
-			var countries []models.Country
-			cursor.All(context.TODO(), &countries)
-			ctx.JSON(http.StatusOK, countries)
 		}
+
+		var countries []models.Country
+		cursor.All(context.TODO(), &countries)
+		return ctx.JSON(countries)
 	}
 }
 
-func GetCities() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func GetCities() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		// Get the request body
 
-		countryCode, countryCodeFound := ctx.GetQuery("country_code")
-		if !countryCodeFound {
-			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-				Message: "Check request params for country_code",
-				Error:   nil,
-			})
-			return
-		}
+		countryCode := ctx.Query("country_code", "KE")
 
 		collection := getCollection(constants.CITIES_COLLECTION_NAME)
 		filter := bson.D{{Key: "country_iso2", Value: countryCode}}
@@ -62,15 +55,15 @@ func GetCities() gin.HandlerFunc {
 		// Find all cities
 		cursor, err := collection.Find(context.TODO(), filter, options)
 		if err != nil {
-			logger.Handle(err, "Fetching cities array")
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Message: "Internal server error",
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
+				Message: "Error fetching city",
 				Error:   err,
 			})
-		} else {
-			var cities []models.City
-			cursor.All(context.TODO(), &cities)
-			ctx.JSON(http.StatusOK, cities)
 		}
+
+		var cities []models.City
+		cursor.All(context.TODO(), &cities)
+		return ctx.JSON(cities)
 	}
 }

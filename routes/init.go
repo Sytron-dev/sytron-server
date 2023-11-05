@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 // Open routes, do not require authorization
-func InitRoutes(router *gin.Engine) {
+func InitRoutes(router *fiber.App) {
 	initAuthRoutes(router)
 	initUserRoutes(router)
 	initConfigRoutes(router)
@@ -14,7 +14,7 @@ func InitRoutes(router *gin.Engine) {
 }
 
 // Require Authorization
-func InitProtectedRoutes(router *gin.Engine) {
+func InitProtectedRoutes(router *fiber.App) {
 	initProtectedAuthRoutes(router)
 	initProtectedCMSRoutes(router)
 	initProtectedCompanyRoutes(router)

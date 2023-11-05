@@ -1,12 +1,12 @@
 package routes
 
 import (
-	configs "sytron-server/controllers/configs_controller"
+	"github.com/gofiber/fiber/v2"
 
-	"github.com/gin-gonic/gin"
+	controller "sytron-server/controllers/configs_controller"
 )
 
-func initConfigRoutes(incomingRoutes *gin.Engine) {
-	incomingRoutes.GET("/configs/countries", configs.GetCountries())
-	incomingRoutes.GET("/configs/cities", configs.GetCities())
+func initConfigRoutes(router *fiber.App) {
+	router.Get("/configs/countries", controller.GetCountries())
+	router.Get("/configs/cities", controller.GetCities())
 }

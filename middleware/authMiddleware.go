@@ -1,38 +1,34 @@
 package middleware
 
 import (
-	"fmt"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-
 	"sytron-server/helpers"
+	"sytron-server/types"
+
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Authz validates token and authorizes users
-func Authentication() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		clientToken := c.Request.Header.Get("Token")
+func Authentication() types.HandlerFunc {
+	return func(c *fiber.Ctx) error {
+		clientToken := c.Get("Token")
 		if clientToken == "" {
-			c.JSON(
-				http.StatusUnauthorized,
-				gin.H{"error": fmt.Sprintf("No Authorization header provided")},
+			c.Status(fiber.ErrBadRequest.Code)
+			return c.JSON(
+				bson.M{"error": "No Authorization header provided"},
 			)
-			c.Abort()
-			return
 		}
 
 		claims, err := helpers.ValidateToken(clientToken)
 		if err != "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err, "claims": claims})
-			c.Abort()
-			return
+			c.Status(fiber.ErrUnauthorized.Code)
+			return c.JSON( bson.M{"error": err, "claims": claims})
 		}
 
 		c.Set("email", claims.Email)
 		c.Set("uid", claims.ID)
 		c.Set("role", claims.Role)
 
-		c.Next()
+		return c.Next()
 	}
 }

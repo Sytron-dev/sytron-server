@@ -2,26 +2,27 @@ package backoffice_controller
 
 import (
 	"net/http"
-
-	"github.com/gin-gonic/gin"
-
 	"sytron-server/database"
 	"sytron-server/models"
 	"sytron-server/resolvers"
+	"sytron-server/types"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // get a list of all backoffice credentials info
-func GetBackOfficers() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func GetBackOfficers() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		if backofficers, err := resolvers.BackOfficersResolver.FindMany(database.PaginationOptions{}); err != nil {
 			// failure
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed while reading database",
 				Error:   err,
 			})
 		} else {
 			// success
-			ctx.JSON(http.StatusOK, backofficers)
+			return ctx.JSON(backofficers)
 		}
 	}
 }

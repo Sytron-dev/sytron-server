@@ -1,9 +1,7 @@
 package routes
 
-import (
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gofiber/fiber/v2"
 
-func initRoutes(router *gin.Engine) {
+func initRoutes(router *fiber.App) {
 	//
 }

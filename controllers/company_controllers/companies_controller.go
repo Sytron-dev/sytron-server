@@ -3,66 +3,70 @@ package company_controllers
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-
 	"sytron-server/database"
 	"sytron-server/models"
 	"sytron-server/resolvers"
+	"sytron-server/types"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func CreateCompany() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func CreateCompany() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		// get json data
 		var body models.Company
 
-		if err := ctx.ShouldBindJSON(&body); err != nil {
-			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+		if err := ctx.BodyParser(&body); err != nil {
+			ctx.Status(http.StatusBadRequest)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "There's a problem with your request body",
 				Error:   err,
 			})
-			return
+
 		}
 
 		body.SetID()
 		body.InsertTime()
 
 		if res, err := resolvers.CompanyResolver.InsertOne(body); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed writing to database",
 				Error:   err,
 			})
-			return
 		} else {
-			ctx.JSON(http.StatusOK, res)
+			return ctx.JSON(res)
 		}
 	}
 }
 
-func GetCompanies() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func GetCompanies() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		if companies, err := resolvers.CompanyResolver.FindMany(database.PaginationOptions{}); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed while reading database",
 				Error:   err,
 			})
 		} else {
-			ctx.JSON(http.StatusOK, companies)
+			return ctx.JSON(companies)
 		}
 	}
 }
 
-func GetSingleCompany() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func GetSingleCompany() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		// Get _id param
-		id := ctx.Params.ByName("id")
+		id := ctx.Params("id")
 
 		if company, err := resolvers.CompanyResolver.FindOneByID(id); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed while reading database",
 				Error:   err,
 			})
 		} else {
-			ctx.JSON(http.StatusOK, company)
+			return ctx.JSON(company)
 		}
 	}
 }
@@ -72,28 +76,28 @@ func updateOneCompany(id string, data models.Company) (*models.Company, error) {
 	return resolvers.CompanyResolver.UpdateOne(id, data)
 }
 
-func UpdateCompany() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		id := ctx.Params.ByName("id")
+func UpdateCompany() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
+		id := ctx.Params("id")
 
 		// Get updated company from request body
 		var company models.Company
-		if err := ctx.ShouldBindJSON(&company); err != nil {
-			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+		if err := ctx.BodyParser(&company); err != nil {
+			ctx.Status(http.StatusBadRequest)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed parsing request body",
 				Error:   err,
 			})
-			return
 		}
 
 		if updatedCompany, err := updateOneCompany(id, company); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed updating company",
 				Error:   err,
 			})
-			return
 		} else {
-			ctx.JSON(http.StatusOK, updatedCompany)
+			return ctx.JSON(updatedCompany)
 		}
 	}
 }

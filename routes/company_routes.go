@@ -1,14 +1,14 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-
 	controller "sytron-server/controllers/company_controllers"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func initProtectedCompanyRoutes(router *gin.Engine) {
-	router.GET("/companies", controller.GetCompanies())
-	router.GET("/companies/:id", controller.GetSingleCompany())
-	router.POST("/companies", controller.CreateCompany())
-	router.PUT("/companies/:id", controller.UpdateCompany())
+func initProtectedCompanyRoutes(router *fiber.App) {
+	router.Get("/companies", controller.GetCompanies())
+	router.Get("/companies/:id", controller.GetSingleCompany())
+	router.Post("/companies", controller.CreateCompany())
+	router.Put("/companies/:id", controller.UpdateCompany())
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"sytron-server/controllers/uploads_controller"
@@ -12,19 +12,20 @@ import (
 	"sytron-server/models"
 	"sytron-server/resolvers"
 	"sytron-server/storage"
+	"sytron-server/types"
 )
 
-func CreateEvent() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func CreateEvent() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		// get json data
 		var body models.Event
 
-		if err := ctx.ShouldBindJSON(&body); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+		if err := ctx.BodyParser(&body); err != nil {
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "There's a problem with your request body",
 				Error:   err,
 			})
-			return
 		}
 
 		// init default info
@@ -32,20 +33,21 @@ func CreateEvent() gin.HandlerFunc {
 		body.InsertTime()
 
 		if res, err := resolvers.EventsResolver.InsertOne(body); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed reading/writing to database",
 				Error:   err,
 			})
 		} else {
-			ctx.JSON(http.StatusOK, res)
+			return ctx.JSON(res)
 		}
 	}
 }
 
-func GetSingleEvent() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func GetSingleEvent() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		// Get _id param
-		id := ctx.Params.ByName("id")
+		id := ctx.Params("id")
 
 		// variables
 		// var event models.Event
@@ -53,26 +55,27 @@ func GetSingleEvent() gin.HandlerFunc {
 		// var location models.Location
 
 		if event, err := resolvers.EventsResolver.FindOneByID(id); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Error finding event",
 				Error:   err,
 			})
-			return
 		} else {
-			ctx.JSON(http.StatusOK, event)
+			return ctx.JSON(event)
 		}
 	}
 }
 
-func GetEvents() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func GetEvents() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
 		if events, err := resolvers.EventsResolver.FindMany(database.PaginationOptions{}); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed while reading events",
 				Error:   err,
 			})
 		} else {
-			ctx.JSON(http.StatusOK, events)
+			return ctx.JSON(events)
 		}
 	}
 }
@@ -82,36 +85,37 @@ func updateOneEvent(id string, data models.Event) (*models.Event, error) {
 	return resolvers.EventsResolver.UpdateOne(id, data)
 }
 
-func UpdateEvent() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		id := ctx.Params.ByName("id")
+func UpdateEvent() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
+		id := ctx.Params("id")
 
 		// bind json data
 		var body models.Event
 
-		if err := ctx.ShouldBindJSON(body); err != nil {
-			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+		if err := ctx.BodyParser(body); err != nil {
+			ctx.Status(http.StatusBadRequest)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed reading request body",
 				Error:   err,
 			})
-			return
 		}
 
 		body.UpdateTime()
 		if res, err := resolvers.EventsResolver.UpdateOne(id, body); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed updating event",
 				Error:   err,
 			})
 		} else {
-			ctx.JSON(http.StatusOK, res)
+			return ctx.JSON(res)
 		}
 	}
 }
 
-func UploadEventHeroImage() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		id := ctx.Params.ByName("id")
+func UploadEventHeroImage() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
+		id := ctx.Params("id")
 
 		fileName := fmt.Sprintf("events/%v/image", id)
 
@@ -122,34 +126,37 @@ func UploadEventHeroImage() gin.HandlerFunc {
 			fileName,
 		)
 		if errResponse != nil {
-			ctx.JSON(http.StatusInternalServerError, errResponse)
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(errResponse)
 		}
 
 		var newEvent models.Event
 		newEvent.HeroImageUrl = *imageUrl
 
 		if updatedEvent, err := updateOneEvent(id, newEvent); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed updating event",
 				Error:   err,
 			})
 		} else {
-			ctx.JSON(http.StatusOK, updatedEvent)
+			return ctx.JSON(updatedEvent)
 		}
 	}
 }
 
-func DeleteEvent() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		id := ctx.Params.ByName("id")
+func DeleteEvent() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
+		id := ctx.Params("id")
 
 		if err := resolvers.EventsResolver.DeleteOne(id); err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(models.ErrorResponse{
 				Message: "Failed deleting event",
 				Error:   err,
 			})
-			return
 		}
 		ctx.Status(http.StatusNoContent)
+		return nil
 	}
 }

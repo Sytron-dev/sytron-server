@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -15,6 +15,7 @@ import (
 	"sytron-server/database"
 	"sytron-server/helpers"
 	"sytron-server/models"
+	"sytron-server/types"
 )
 
 var validate = validator.New()
@@ -32,8 +33,8 @@ func VerifyPassword(userPassword string, providedPassword string) (check bool, m
 }
 
 // CreateUser is the api used to get a single user
-func SignUp() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func SignUp() types.HandlerFunc {
+	return func(c *fiber.Ctx) error {
 		collection := database.GetCollection(constants.USERS_COLLECTION)
 
 		// initialise variables for this scope
@@ -44,15 +45,16 @@ func SignUp() gin.HandlerFunc {
 		defer cancel()
 
 		// Bind user data
-		if err := c.BindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
+		if err := c.BodyParser(&user); err != nil {
+			c.Status(http.StatusBadRequest)
+			return c.JSON(bson.M{"error": err.Error()})
+
 		}
 
 		// Validate data integrity
 		if err := validate.Struct(user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
+			c.Status(http.StatusBadRequest)
+			return c.JSON(bson.M{"error": err.Error()})
 		}
 
 		// check if email or phone number exists
@@ -63,48 +65,46 @@ func SignUp() gin.HandlerFunc {
 			},
 		}
 		if count, err := collection.CountDocuments(ctx, filter); err != nil {
-			c.JSON(
-				http.StatusInternalServerError,
-				gin.H{"error": "Error occurred while checking for the email"},
-			)
-			return
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(bson.M{"error": "Error occurred while checking for the email"})
+
 		} else if count != 0 {
-			c.JSON(
-				http.StatusForbidden,
-				gin.H{"error": "This email/phone number already exists. Please contact the support!"},
-			)
-			return
+			c.Status(http.StatusForbidden)
+			return c.JSON(bson.M{"error": "This email/phone number already exists. Please contact the support!"})
 		}
 
 		// Load info
 		var err error
 		user.ID = primitive.NewObjectID()
 		if user.Password, err = helpers.HashPassword(user.Password); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Era"})
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(bson.M{"error": "Era"})
 		}
+
 		if user.Token, user.RefreshToken, err = helpers.GenerateAllTokens(
 			user.Email,
 			user.ID.String(),
 			constants.USER_ROLE_CONSUMER,
 		); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Era"})
-			return
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(bson.M{"error": "Era"})
 		}
 
 		user.InsertTime()
 
 		resultInsertionNumber, err := collection.InsertOne(ctx, user)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "User item was not created"})
-			return
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(bson.M{"error": "User item was not created"})
+
 		}
-		c.JSON(http.StatusOK, resultInsertionNumber)
+		return c.JSON(resultInsertionNumber)
 	}
 }
 
 // Login is the api used to get a single user
-func Login() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func Login() types.HandlerFunc {
+	return func(c *fiber.Ctx) error {
 		collection := database.GetCollection(constants.USERS_COLLECTION)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
@@ -113,22 +113,25 @@ func Login() gin.HandlerFunc {
 		var user models.User
 		var foundUser models.User
 
-		if err := c.BindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
+		if err := c.BodyParser(&user); err != nil {
+			c.Status(http.StatusBadRequest)
+			return c.JSON(bson.M{"error": err.Error()})
+
 		}
 
 		err := collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid login credentials"})
-			return
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(bson.M{"error": "Invalid login credentials"})
+
 		}
 
 		passwordIsValid, msg := VerifyPassword(user.Password, foundUser.Password)
 		defer cancel()
 		if !passwordIsValid {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-			return
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(bson.M{"error": msg})
+
 		}
 
 		token, refreshToken, _ := helpers.GenerateAllTokens(
@@ -139,6 +142,6 @@ func Login() gin.HandlerFunc {
 
 		helpers.UpdateAllTokens(token, refreshToken, foundUser.ID.String())
 
-		c.JSON(http.StatusOK, foundUser)
+		return c.JSON(foundUser)
 	}
 }

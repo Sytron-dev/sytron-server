@@ -1,13 +1,13 @@
 package routes
 
 import (
-	controller "sytron-server/controllers"
+	"github.com/gofiber/fiber/v2"
 
-	"github.com/gin-gonic/gin"
+	controller "sytron-server/controllers"
 )
 
 // UserRoutes function
-func initUserRoutes(incomingRoutes *gin.Engine) {
-	incomingRoutes.POST("/users/signup", controller.SignUp())
-	incomingRoutes.POST("/users/login", controller.Login())
+func initUserRoutes(router *fiber.App) {
+	router.Post("/users/signup", controller.SignUp())
+	router.Post("/users/login", controller.Login())
 }

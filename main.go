@@ -1,14 +1,12 @@
 package main
 
 import (
+	"log"
 	"os"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	_ "github.com/heroku/x/hmetrics/onload"
+	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 
-	middleware "sytron-server/middleware"
 	routes "sytron-server/routes"
 )
 
@@ -22,22 +20,13 @@ func main() {
 		port = "8000"
 	}
 
-	router := gin.New()
-	router.Use(gin.Logger())
+	app := fiber.New()
+	// app.Use(cors.New())
 
-	// Allow cors
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowCredentials: true,
-		AllowHeaders:     []string{"*"},
-		AllowWildcard:    true,
-		AllowFiles:       true,
-	}))
+	routes.InitRoutes(app)
 
-	routes.InitRoutes(router) // open routes
-	router.Use(middleware.Authentication())
-	routes.InitProtectedRoutes(router) // require authorization
+	// TODO add endpoint-level protection
+	routes.InitProtectedRoutes(app)
 
-	router.Run(":" + port)
+	log.Fatal(app.Listen(":" + port))
 }
