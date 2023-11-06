@@ -10,9 +10,9 @@ import (
 	"sytron-server/api/handlers/upload"
 	"sytron-server/storage"
 	"sytron-server/storage/conn"
-	"sytron-server/storage/models"
 	"sytron-server/storage/resolvers"
 	"sytron-server/types"
+	"sytron-server/types/models"
 )
 
 func CreateEvent() types.HandlerFunc {

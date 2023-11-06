@@ -11,9 +11,9 @@ import (
 
 	"sytron-server/constants"
 	"sytron-server/storage"
-	"sytron-server/storage/models"
 	"sytron-server/storage/queries"
 	"sytron-server/types"
+	"sytron-server/types/models"
 )
 
 func getCollection(collectionName string) *mongo.Collection {

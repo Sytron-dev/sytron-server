@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"sytron-server/constants"
-	"sytron-server/storage/models"
+	"sytron-server/types/models"
 )
 
 var UserAuthCredentialsResolver = CollectionResolver[models.AuthCredential]{

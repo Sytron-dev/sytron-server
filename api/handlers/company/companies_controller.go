@@ -6,9 +6,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"sytron-server/storage"
-	"sytron-server/storage/models"
 	"sytron-server/storage/resolvers"
 	"sytron-server/types"
+	"sytron-server/types/models"
 )
 
 func CreateCompany() types.HandlerFunc {

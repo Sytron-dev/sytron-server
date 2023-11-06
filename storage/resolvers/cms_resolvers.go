@@ -2,8 +2,8 @@ package resolvers
 
 import (
 	"sytron-server/constants"
-	"sytron-server/storage/models"
 	"sytron-server/storage/tables"
+	"sytron-server/types/models"
 )
 
 type cmsResolver[T any] struct {

@@ -1,8 +1,8 @@
 package queries
 
 import (
-	"sytron-server/storage/models"
 	"sytron-server/storage/tables"
+	"sytron-server/types/models"
 )
 
 func GetDestinations() (destinations models.Destination, err error) {

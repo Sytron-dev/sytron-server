@@ -12,8 +12,8 @@ import (
 
 	"sytron-server/constants"
 	"sytron-server/storage"
-	"sytron-server/storage/models"
 	"sytron-server/types"
+	"sytron-server/types/models"
 	"sytron-server/util"
 )
 

@@ -7,9 +7,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"sytron-server/storage/models"
 	"sytron-server/storage/resolvers"
 	"sytron-server/types"
+	"sytron-server/types/models"
 	"sytron-server/util"
 )
 
