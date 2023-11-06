@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"sytron-server/helpers"
-	"sytron-server/types"
-
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"sytron-server/types"
+	"sytron-server/util"
 )
 
 // Authz validates token and authorizes users
@@ -19,10 +19,10 @@ func Authentication() types.HandlerFunc {
 			)
 		}
 
-		claims, err := helpers.ValidateToken(clientToken)
+		claims, err := util.ValidateToken(clientToken)
 		if err != "" {
 			c.Status(fiber.ErrUnauthorized.Code)
-			return c.JSON( bson.M{"error": err, "claims": claims})
+			return c.JSON(bson.M{"error": err, "claims": claims})
 		}
 
 		c.Set("email", claims.Email)
