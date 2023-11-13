@@ -8,14 +8,14 @@ import (
 
 func initCMSRoutes(router *fiber.App) {
 	// destinations
-	router.Get("/destinations", controller.GetDestinations())
-	router.Get("/destinations/:id", controller.GetSingleDestination())
+	router.Get("/cms/destinations", controller.GetDestinations())
+	router.Get("/cms/destinations/:id", controller.GetSingleDestination())
 }
 
 func initProtectedCMSRoutes(router *fiber.App) {
 	// destinations
-	router.Post("/destinations", controller.CreateDestination())
-	router.Put("/destinations/:id", controller.UpdateDestination())
-	router.Put("/destinations/:id/upload/image", controller.UploadDestinationImage())
-	router.Delete("/destinations/:id", controller.DeleteDestination())
+	router.Post("/cms/destinations", controller.CreateDestination())
+	router.Put("/cms/destinations/:id", controller.UpdateDestination())
+	router.Put("/cms/destinations/:id/upload/image", controller.UploadDestinationImage())
+	router.Delete("/cms/destinations/:id", controller.DeleteDestination())
 }

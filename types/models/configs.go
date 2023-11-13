@@ -1,24 +1,20 @@
 package models
 
-import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
-
 type Country struct {
-	ID           primitive.ObjectID `bson:"_id"`
-	Name         string             `bson:"name"          json:"name"`
-	EnLabel      string             `bson:"en_label"      json:"en_label"`
-	Value        string             `bson:"iso2"          json:"value"`
-	Lat          float64            `bson:"lat"           json:"lat"`
-	Lon          float64            `bson:"lon"           json:"lon"`
-	CurrencyCode string             `bson:"currency_code" json:"currency_code"`
+	ID      int      `json:"_id,omitempty"`
+	Name    string   `json:"name,omitempty"     db:"name"`
+	EnLabel string   `json:"en_label,omitempty"`
+	ISO2    *string  `json:"value,omitempty"    db:"iso2"`
+	ISO3    *string  `json:"iso3,omitempty"`
+	Lat     *float64 `json:"lat,omitempty"`
+	Lon     *float64 `json:"lon,omitempty"`
 }
 
 type City struct {
-	ID          primitive.ObjectID `bson:"_id"`
-	CountryCode string             `bson:"country_iso2" json:"country_code"`
-	Label       string             `bson:"label"        json:"label"`
-	Value       string             `bson:"value"        json:"value"`
-	Lat         float64            `bson:"lat"          json:"lat"`
-	Lon         float64            `bson:"lon"          json:"lon"`
+	ID          int     `json:"_id,omitempty"`
+	CountryISO2 string  `json:"_country,omitempty" db:"_country_iso2"`
+	Label       string  `json:"label,omitempty"`
+	Value       string  `json:"value,omitempty"`
+	Lat         float64 `json:"lat,omitempty"`
+	Lon         float64 `json:"lon,omitempty"`
 }

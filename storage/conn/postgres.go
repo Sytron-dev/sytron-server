@@ -1,24 +1,13 @@
 package conn
 
 import (
-	"database/sql"
-
-	_ "github.com/lib/pq"
-	"github.com/nedpals/supabase-go"
-
+	"context"
+	"log"
 	"sytron-server/constants"
-)
 
-func loadPostgresDB() *sql.DB {
-	_db, err := sql.Open("postgres", constants.POSTGRES_CONNECTION_STRING)
-	if err != nil {
-		print("Failed to connect to DB")
-		print(err.Error())
-	} else {
-		print("Connected to Postgres DB")
-	}
-	return _db
-}
+	"github.com/jackc/pgx/v5"
+	"github.com/nedpals/supabase-go"
+)
 
 func initSupabaseDB() *supabase.Client {
 	supabaseUrl := constants.SUPABASE_PROJECT_URL
@@ -26,7 +15,17 @@ func initSupabaseDB() *supabase.Client {
 	return supabase.CreateClient(supabaseUrl, supabaseKey)
 }
 
+func initPGX() *pgx.Conn {
+	conn, _ := pgx.Connect(context.Background(), constants.POSTGRES_CONNECTION_STRING)
+	log.Println("Connected to Postgress")
+	return conn
+}
+
+func Close() {
+	PgxConn.Close(context.Background())
+}
+
 var (
-	db   *sql.DB = loadPostgresDB()
-	Supa         = initSupabaseDB()
+	PgxConn *pgx.Conn = initPGX()
+	Supa              = initSupabaseDB()
 )

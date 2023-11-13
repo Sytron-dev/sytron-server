@@ -1,19 +1,13 @@
 package config
 
 import (
-	"context"
-	"net/http"
-
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
 	"sytron-server/constants"
 	"sytron-server/storage"
 	"sytron-server/storage/queries"
 	"sytron-server/types"
-	"sytron-server/types/models"
+
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func getCollection(collectionName string) *mongo.Collection {
@@ -25,7 +19,7 @@ func GetCountries() types.HandlerFunc {
 		if data, err := queries.GetCountries(); err != nil {
 			ctx.Status(fiber.ErrInternalServerError.Code)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Oops",
+				Message: err.Error(),
 				Error:   err,
 			})
 		} else {
@@ -35,28 +29,15 @@ func GetCountries() types.HandlerFunc {
 }
 
 func GetCities() types.HandlerFunc {
-	return func(ctx *fiber.Ctx) error {
+	return func(ctx *fiber.Ctx) (err error) {
 		// Get the request body
-
-		countryCode := ctx.Query("country_code", "KE")
-
-		collection := getCollection(constants.CITIES_COLLECTION_NAME)
-		filter := bson.D{{Key: "country_iso2", Value: countryCode}}
-		options := options.Find()
-		options.SetLimit(200)
-
-		// Find all cities
-		cursor, err := collection.Find(context.TODO(), filter, options)
+		cities, err := queries.GetCities()
 		if err != nil {
-			ctx.Status(http.StatusInternalServerError)
-			return ctx.JSON(types.ErrorResponse{
-				Message: "Error fetching city",
+			return ctx.Status(fiber.ErrInternalServerError.Code).JSON(types.ErrorResponse{
+				Message: "Oops",
 				Error:   err,
 			})
 		}
-
-		var cities []models.City
-		cursor.All(context.TODO(), &cities)
-		return ctx.JSON(cities)
+		return ctx.Status(fiber.StatusOK).JSON(cities)
 	}
 }

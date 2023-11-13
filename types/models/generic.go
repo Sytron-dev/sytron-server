@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -24,4 +25,19 @@ func (doc *CollectionDocument) UpdateTime() {
 
 func (doc *CollectionDocument) SetID() {
 	doc.ID = primitive.NewObjectID()
+}
+
+type SqlDocument struct {
+	ID        uuid.UUID `json:"_id"        db:"_id"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+}
+
+func (doc *SqlDocument) InsertTime() {
+	doc.CreatedAt = time.Now().UTC()
+	doc.UpdatedAt = time.Now().UTC()
+}
+
+func (doc *SqlDocument) UpdateTime() {
+	doc.UpdatedAt = time.Now().UTC()
 }

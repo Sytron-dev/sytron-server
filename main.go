@@ -11,8 +11,10 @@ import (
 )
 
 func main() {
-	// Server
+	// database
+	// defer conn.Close()
 
+	// Server
 	port := "8000"
 	if constants.PORT != "" {
 		port = constants.PORT

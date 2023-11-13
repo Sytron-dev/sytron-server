@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"sytron-server/constants"
-	"sytron-server/storage/tables"
 	"sytron-server/types/models"
 )
 
@@ -20,12 +19,4 @@ var DestinationResolver = cmsResolver[models.Destination]{
 	CollectionResolver[models.Destination]{
 		collectionName: constants.CMS_COLLECTION_DESTINATIONS,
 	},
-}
-
-// the new SQL resolvers
-
-var DestResolver = SqlResolver[models.Destination]{
-	tableName:         tables.DESTINATIONS,
-	model:             models.Destination{},
-	comprehensizeRows: "*",
 }

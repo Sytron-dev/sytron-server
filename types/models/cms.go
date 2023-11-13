@@ -1,8 +1,6 @@
 package models
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"sytron-server/types"
 )
 
@@ -15,20 +13,22 @@ type Asset struct {
 // Location is a geographical/geopolitical area like a city
 
 type Location struct {
-	CollectionDocument `bson:",inline"`
-	types.Coordinates  `bson:",omitempty" json:"coordinates"`
+	SqlDocument       `json:",inline"     db:",inline"`
+	types.Coordinates `json:"coordinates" db:",inline"`
 
-	Name        string             `bson:"name,omitempty"         json:"name"`
-	OneLiner    string             `bson:"one_liner,omitempty"    json:"one_liner"`
-	Description string             `bson:"description,omitempty"  json:"description"`
-	ImageURL    string             `bson:"image_url,omitempty"    json:"image_url"`
-	CountryCode string             `bson:"country_code,omitempty" json:"country_code"`
-	CityID      primitive.ObjectID `bson:"city_id,omitempty"      json:"city_id"`
+	// foreign keys
+	CountryCode string `json:"_country" db:"_country"`
+	CityID      string `json:"_city"    db:"_city"`
+
+	Name        string `json:"name"        db:"name"`
+	OneLiner    string `json:"one_liner"   db:"one_liner"`
+	Description string `json:"description" db:"description"`
+	ImageURL    string `json:"image_url"   db:"image_url"`
 }
 
 // Destination represents a tourist destination
 // Tourist destinations can be a country, city or a place
 
 type Destination struct {
-	Location `bson:",inline"`
+	Location `json:",inline" db:",inline"`
 }

@@ -1,9 +1,9 @@
 package resolvers
 
 import (
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"sytron-server/storage"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type CollectionResolver[T any] struct {
@@ -21,4 +21,14 @@ func (c *CollectionResolver[T]) GetCollection() *mongo.Collection {
 
 func (c *CollectionResolver[T]) GetCollectionName() string {
 	return c.collectionName
+}
+
+type PqlResolver[T any] struct {
+	tableName      string
+	model          T
+	createQuery    string
+	readOneQuery   string
+	readManyQuery  string
+	updateOneQuery string
+	deleteOneQuery string
 }

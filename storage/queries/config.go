@@ -1,16 +1,28 @@
 package queries
 
 import (
-	"sytron-server/storage/tables"
+	"context"
 	"sytron-server/types/models"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func GetCountries() (data []models.Country, err error) {
-	err = db.From(tables.COUNTRIES).Select("*").Execute(&data)
+	query := `
+    SELECT name,iso2 FROM countries 
+    WHERE iso2 IS NOT NULL
+  `
+	rows, err := pgxConn.Query(context.TODO(), query)
+	data, err = pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Country])
 	return
 }
 
 func GetCities() (data []models.City, err error) {
-	err = db.From(tables.CITIES).Select("*").Execute(&data)
+	query := `
+    SELECT _country_iso2, label, value FROM cities 
+    WHERE _country_iso2 = 'KE'
+  `
+	rows, err := pgxConn.Query(context.TODO(), query)
+	data, err = pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.City])
 	return
 }
