@@ -5,8 +5,8 @@ import (
 )
 
 type Coordinates struct {
-	Latitude  float64 `bson:"lat" json:"lat"`
-	Longitude float64 `bson:"lon"    json:"lon"`
+	Latitude  float64 `json:"lat" db:"lat"`
+	Longitude float64 `json:"lon" db:"lon"`
 }
 
 // Network types

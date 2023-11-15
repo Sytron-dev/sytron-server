@@ -1,33 +1,5 @@
 package constants
 
-import (
-	"os"
-
-	"github.com/joho/godotenv"
-)
-
-var (
-	MONGODB_CONNECTION_STRING string = ""
-	DATABASE_NAME             string = ""
-	CONFIGS_DATABASE_NAME     string = ""
-)
-
-func initEnv() (err error) {
-	error := godotenv.Load(".env")
-	if error != nil {
-		return
-	}
-
-	// Database constants from the .env file
-	MONGODB_CONNECTION_STRING = os.Getenv("MONGODB_CONNECTION_STRING")
-	DATABASE_NAME = os.Getenv("PRIMARY_DATABASE")
-	CONFIGS_DATABASE_NAME = os.Getenv("CONFIGS_DATABASE")
-
-	return
-}
-
-var initErr = initEnv()
-
 // ---- Collection names -----------------------------------------------------------------
 const (
 	// Users
