@@ -19,8 +19,9 @@ func CreateDestination() types.HandlerFunc {
 
 		if err := ctx.BodyParser(&body); err != nil {
 			resErr := types.ErrorResponse{
-				Message: "There's a problem with your request body",
-				Error:   err,
+				Message:  "There's a problem with your request body",
+				Error:    err,
+				Metadata: err.Error(),
 			}
 			ctx.Status(http.StatusBadRequest)
 			return ctx.JSON(resErr)
@@ -116,14 +117,12 @@ func UploadDestinationImage() types.HandlerFunc {
 			return ctx.JSON(errResponse)
 		}
 
-		var newDest models.Destination
-		newDest.ImageURL = *imageUrl
-
-		if updatedDest, err := queries.UpdateDestination(id, newDest); err != nil {
+		if updatedDest, err := queries.UpdateDestinationImage(id, *imageUrl); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed updating destination",
-				Error:   err,
+				Message:  "Failed updating destination image",
+				Error:    err,
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(updatedDest)

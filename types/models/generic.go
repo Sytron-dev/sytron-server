@@ -28,9 +28,9 @@ func (doc *CollectionDocument) SetID() {
 }
 
 type SqlDocument struct {
-	ID        uuid.UUID `json:"_id"        db:"_id"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID        uuid.UUID `json:"_id"                  db:"_id"`
+	CreatedAt time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at,omitempty" db:"updated_at"`
 }
 
 func (doc *SqlDocument) InsertTime() {

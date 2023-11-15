@@ -82,6 +82,25 @@ func UpdateDestination(
 	return
 }
 
+func UpdateDestinationImage(
+	id string,
+	imageUrl string,
+) (destination models.Destination, err error) {
+	query := `
+    UPDATE tourist_destinations
+    SET image_url = $1
+    WHERE _id = $2
+    RETURNING *
+  `
+	row, err := pgxConn.Query(context.TODO(), query, imageUrl, id)
+	if err != nil {
+		return
+	}
+
+	destination, err = pgx.CollectOneRow(row, pgx.RowToStructByNameLax[models.Destination])
+	return
+}
+
 func DeleteDestination(id string) (err error) {
 	query := `
     DELETE FROM tourist_destinations

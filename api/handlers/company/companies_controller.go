@@ -2,13 +2,11 @@ package company
 
 import (
 	"net/http"
-
-	"github.com/gofiber/fiber/v2"
-
-	"sytron-server/storage"
-	"sytron-server/storage/resolvers"
+	"sytron-server/storage/queries"
 	"sytron-server/types"
 	"sytron-server/types/models"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func CreateCompany() types.HandlerFunc {
@@ -25,14 +23,12 @@ func CreateCompany() types.HandlerFunc {
 
 		}
 
-		body.SetID()
-		body.InsertTime()
-
-		if res, err := resolvers.CompanyResolver.InsertOne(body); err != nil {
+		if res, err := queries.CreateCompany(body); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed writing to database",
-				Error:   err,
+				Message:  "Failed writing to database",
+				Error:    err,
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(res)
@@ -42,11 +38,12 @@ func CreateCompany() types.HandlerFunc {
 
 func GetCompanies() types.HandlerFunc {
 	return func(ctx *fiber.Ctx) error {
-		if companies, err := resolvers.CompanyResolver.FindMany(storage.PaginationOptions{}); err != nil {
+		if companies, err := queries.GetCompanies(); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed while reading database",
-				Error:   err,
+				Message:  "Failed while reading database",
+				Error:    err,
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(companies)
@@ -59,21 +56,17 @@ func GetSingleCompany() types.HandlerFunc {
 		// Get _id param
 		id := ctx.Params("id")
 
-		if company, err := resolvers.CompanyResolver.FindOneByID(id); err != nil {
+		if company, err := queries.FindOneCompany(id); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed while reading database",
-				Error:   err,
+				Message:  "Failed while reading database",
+				Error:    err,
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(company)
 		}
 	}
-}
-
-func updateOneCompany(id string, data models.Company) (*models.Company, error) {
-	data.UpdateTime()
-	return resolvers.CompanyResolver.UpdateOne(id, data)
 }
 
 func UpdateCompany() types.HandlerFunc {
@@ -90,7 +83,7 @@ func UpdateCompany() types.HandlerFunc {
 			})
 		}
 
-		if updatedCompany, err := updateOneCompany(id, company); err != nil {
+		if updatedCompany, err := queries.UpdateCompany(id, company); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message: "Failed updating company",

@@ -25,7 +25,6 @@ func Close() {
 	PgxConn.Close(context.Background())
 }
 
-var (
-	PgxConn *pgx.Conn = initPGX()
-	Supa              = initSupabaseDB()
-)
+var PgxConn *pgx.Conn = initPGX()
+
+// Supa              = initSupabaseDB()

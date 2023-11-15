@@ -1,17 +1,17 @@
 package models
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
 )
 
 type Company struct {
-	CollectionDocument `bson:",inline"`
-
-	Name    string `bson:"name,omitempty"     json:"name"`
-	Email   string `bson:"email,omitempty"    json:"email"`
-	Phone   string `bson:"phone,omitempty"    json:"phone"`
-	LogoURL string `bson:"logo_url,omitempty" json:"logo_url"`
+	SqlDocument `json:",inline" db:",inline"`
 
 	// relations
-	HQ primitive.ObjectID `bson:"hq,omitempty" json:"hq"`
+	HQ uuid.UUID `json:"_hq" db:"_hq"`
+
+	Name    string `json:"name"     db:"name"`
+	Email   string `json:"email"    db:"email"`
+	Phone   string `json:"phone"    db:"phone"`
+	LogoURL string `json:"logo_url" db:"logo_url"`
 }
