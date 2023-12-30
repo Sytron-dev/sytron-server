@@ -2,14 +2,15 @@ package queries
 
 import (
 	"context"
-	"sytron-server/types/models"
 
 	"github.com/jackc/pgx/v5"
+
+	"sytron-server/types/models"
 )
 
 func GetCountries() (data []models.Country, err error) {
 	query := `
-    SELECT name,iso2 FROM countries 
+    SELECT name, iso2, en_label, lat, lon, currency_code FROM countries 
     WHERE iso2 IS NOT NULL
   `
 	rows, err := pgxConn.Query(context.TODO(), query)
@@ -19,7 +20,7 @@ func GetCountries() (data []models.Country, err error) {
 
 func GetCities() (data []models.City, err error) {
 	query := `
-    SELECT _country_iso2, label, value FROM cities 
+    SELECT _country_iso2, label, value, lon, lat FROM cities 
     WHERE _country_iso2 = 'KE'
   `
 	rows, err := pgxConn.Query(context.TODO(), query)

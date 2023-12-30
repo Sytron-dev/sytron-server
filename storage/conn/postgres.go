@@ -3,10 +3,11 @@ package conn
 import (
 	"context"
 	"log"
-	"sytron-server/constants"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/nedpals/supabase-go"
+
+	"sytron-server/constants"
 )
 
 func initSupabaseDB() *supabase.Client {
