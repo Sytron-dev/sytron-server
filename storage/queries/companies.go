@@ -2,9 +2,10 @@ package queries
 
 import (
 	"context"
-	"sytron-server/types/models"
 
 	"github.com/jackc/pgx/v5"
+
+	"sytron-server/types/models"
 )
 
 func CreateCompany(b models.Company) (company models.Company, err error) {

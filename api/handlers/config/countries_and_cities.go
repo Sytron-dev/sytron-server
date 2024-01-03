@@ -1,13 +1,13 @@
 package config
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"sytron-server/constants"
 	"sytron-server/storage"
 	"sytron-server/storage/queries"
 	"sytron-server/types"
-
-	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func getCollection(collectionName string) *mongo.Collection {

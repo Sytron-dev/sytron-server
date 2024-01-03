@@ -11,6 +11,7 @@ func InitRoutes(router *fiber.App) {
 	initConfigRoutes(router)
 	initCMSRoutes(router)
 	initEventRoutes(router)
+	initServicesRoutes(router)
 }
 
 // Require Authorization
