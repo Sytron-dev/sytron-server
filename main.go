@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -38,6 +39,10 @@ func main() {
 
 	// TODO define edpoint level validation for other roles
 	routes.InitProtectedRoutes(app)
+
+	for _, route := range app.GetRoutes() {
+		fmt.Printf("%v %v\n", route.Method, route.Path)
+	}
 
 	log.Fatal(app.Listen(":" + port))
 }

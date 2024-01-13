@@ -11,7 +11,7 @@ func InitJWTAuth() fiber.Handler {
 	return jwtware.New(jwtware.Config{
 		SigningKey: jwtware.SigningKey{
 			Key:    []byte(constants.SECRET_KEY),
-			JWTAlg: jwtware.RS256,
+			JWTAlg: jwtware.HS256,
 		},
 	})
 }
