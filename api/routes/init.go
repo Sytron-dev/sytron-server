@@ -5,19 +5,19 @@ import (
 )
 
 // Open routes, do not require authorization
-func InitRoutes(router *fiber.App) {
-	initAuthRoutes(router)
-	initUserRoutes(router)
-	initConfigRoutes(router)
-	initCMSRoutes(router)
-	initEventRoutes(router)
-	initServicesRoutes(router)
+func InitRoutes(app *fiber.App) {
+	initAuthRoutes(app)
+	initUserRoutes(app)
+	initConfigRoutes(app)
+	initCMSRoutes(app)
+	initEventRoutes(app)
+	initServicesRoutes(app)
 }
 
 // Require Authorization
-func InitProtectedRoutes(router *fiber.App) {
-	initProtectedAuthRoutes(router)
-	initProtectedCMSRoutes(router)
-	initProtectedCompanyRoutes(router)
-	initProtectedEventRoutes(router)
+func InitProtectedRoutes(app *fiber.App) {
+	initProtectedAuthRoutes(app)
+	initProtectedCMSRoutes(app)
+	initProtectedCompanyRoutes(app)
+	initProtectedEventRoutes(app)
 }

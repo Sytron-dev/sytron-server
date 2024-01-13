@@ -33,3 +33,20 @@ const (
 	CITIES_COLLECTION    = "cities"
 	COUNTRIES_COLLECTION = "countries"
 )
+
+// ---- Table names ----------------------------------------------------------------------
+const (
+	// AUTH
+	TABLE_AUTH_BACKOFFICERS = "auth_backofficers"
+
+	// CONFIGS
+	TABLE_CONFIGS_COUNTRIES  = "countries"
+	TABLE_CONFIGS_CITIES     = "cities"
+	TABLE_CONFIGS_CURRENCIES = "currencies"
+
+	// CMS
+	TABLE_CMS_TOURIST_DESTINATIONS = "tourist_destinations"
+
+	// OTHERS
+	TABLE_BNB = "bnb"
+)

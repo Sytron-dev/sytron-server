@@ -22,6 +22,8 @@ var (
 	SUPABASE_PASSWORD          string = ""
 	SUPABASE_PROJECT_URL       string = ""
 	SUPABASE_API_KEY           string = ""
+
+	SECRET_KEY string = ""
 )
 
 func initEnv() (err error) {
@@ -47,6 +49,9 @@ func initEnv() (err error) {
 	SUPABASE_PASSWORD = os.Getenv("SUPABASE_PASSWORD")
 	SUPABASE_PROJECT_URL = os.Getenv("SUPABASE_PROJECT_URL")
 	SUPABASE_API_KEY = os.Getenv("SUPABASE_API_KEY")
+
+	// JWT
+	SECRET_KEY = os.Getenv("SECRET_KEY")
 
 	return
 }

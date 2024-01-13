@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 
+	"sytron-server/api/middleware"
 	"sytron-server/api/routes"
 	"sytron-server/constants"
 )
@@ -31,7 +32,11 @@ func main() {
 	}
 
 	routes.InitRoutes(app)
-	// TODO add endpoint-level protection
+
+	// backofficers are only allowed access here
+	app.Use(middleware.InitJWTAuth())
+
+	// TODO define edpoint level validation for other roles
 	routes.InitProtectedRoutes(app)
 
 	log.Fatal(app.Listen(":" + port))

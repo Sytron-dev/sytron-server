@@ -7,14 +7,19 @@ import (
 )
 
 type AuthCredential struct {
-	CollectionDocument `bson:",inline"`
+	SqlDocument `db:"sql_document"`
 
-	Value        string             `bson:"value"         json:"value"`
-	Type         string             `bson:"type"          json:"type"` // email, phone, sso, username
-	Password     string             `bson:"password"      json:"password"`
-	BearerToken  string             `bson:"bearer_token"  json:"bearer_token"`
-	RefreshToken string             `bson:"refresh_token" json:"refresh_token"`
-	LastLogin    primitive.DateTime `bson:"last_login"    json:"last_login"`
+	Value        string             `json:"credential_value,omitempty" db:"credential_value"`
+	Type         string             `json:"credential_type,omitempty"  db:"credential_type"` // email, phone, sso, username
+	Password     string             `json:"password,omitempty"         db:"password"`
+	BearerToken  string             `json:"bearer_token,omitempty"`
+	RefreshToken string             `json:"refresh_token,omitempty"`
+	LastLogin    primitive.DateTime `json:"last_login,omitempty"       db:"last_login"`
+}
+
+type AuthBody struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (doc *AuthCredential) UpdateLastLogin() {
