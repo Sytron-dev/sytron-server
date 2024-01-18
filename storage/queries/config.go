@@ -18,11 +18,20 @@ func GetCountries() (data []models.Country, err error) {
 	return
 }
 
-func GetCities() (data []models.City, err error) {
+func GetCities(country string) (data []models.City, err error) {
 	query := `
     SELECT _country_iso2, label, value, lon, lat FROM cities 
-    WHERE _country_iso2 = 'KE'
-  `
+		`
+
+	if country == "" {
+		data = []models.City{}
+		return
+	}
+
+	if country != "all" {
+		query += " WHERE _country_iso2 = '" + country + "'"
+	}
+
 	rows, err := pgxConn.Query(context.TODO(), query)
 	data, err = pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.City])
 	return

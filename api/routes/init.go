@@ -8,7 +8,6 @@ import (
 func InitRoutes(app *fiber.App) {
 	initAuthRoutes(app)
 	initUserRoutes(app)
-	initConfigRoutes(app)
 	initCMSRoutes(app)
 	initEventRoutes(app)
 	initServicesRoutes(app)
@@ -20,4 +19,5 @@ func InitProtectedRoutes(app *fiber.App) {
 	initProtectedCMSRoutes(app)
 	initProtectedCompanyRoutes(app)
 	initProtectedEventRoutes(app)
+	initConfigRoutes(app) // hidden to avoid abuse
 }

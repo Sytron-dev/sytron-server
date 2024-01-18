@@ -31,7 +31,9 @@ func GetCountries() types.HandlerFunc {
 func GetCities() types.HandlerFunc {
 	return func(ctx *fiber.Ctx) (err error) {
 		// Get the request body
-		cities, err := queries.GetCities()
+		country := ctx.Query("country")
+
+		cities, err := queries.GetCities(country)
 		if err != nil {
 			return ctx.Status(fiber.ErrInternalServerError.Code).JSON(types.ErrorResponse{
 				Message: "Oops",

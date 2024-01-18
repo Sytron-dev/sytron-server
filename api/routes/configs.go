@@ -9,4 +9,5 @@ import (
 func initConfigRoutes(router *fiber.App) {
 	router.Get("/configs/countries", controller.GetCountries())
 	router.Get("/configs/cities", controller.GetCities())
+	router.Get("/configs/all", controller.GetAllConfigs())
 }
