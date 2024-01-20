@@ -12,7 +12,7 @@ func CreateBNB(b models.BNB) (bnb models.BNB, err error) {
 	query := `
 		INSERT INTO bnb
 		(name, description, lat, lon, image_url, _currency, price, _company, _country, _city)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		RETURNING *
 	`
 
