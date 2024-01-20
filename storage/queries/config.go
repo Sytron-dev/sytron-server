@@ -20,7 +20,7 @@ func GetCountries() (data []models.Country, err error) {
 
 func GetCities(country string) (data []models.City, err error) {
 	query := `
-    SELECT _country_iso2, label, value, lon, lat FROM cities 
+    SELECT _id, _country_iso2, label, value, lon, lat FROM cities 
 		`
 
 	if country == "" {

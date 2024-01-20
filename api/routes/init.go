@@ -20,4 +20,5 @@ func InitProtectedRoutes(app *fiber.App) {
 	initProtectedCompanyRoutes(app)
 	initProtectedEventRoutes(app)
 	initConfigRoutes(app) // hidden to avoid abuse
+	initProtectedServicesRoutes(app)
 }

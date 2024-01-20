@@ -12,7 +12,7 @@ type Country struct {
 }
 
 type City struct {
-	ID      int      `json:"_id,omitempty"`
+	ID      int      `json:"_id,omitempty"      db:"_id"`
 	Country string   `json:"_country,omitempty" db:"_country_iso2"`
 	Label   string   `json:"label,omitempty"`
 	Value   string   `json:"value,omitempty"`
