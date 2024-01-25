@@ -1,44 +1,48 @@
 package main
 
 import (
-	"os"
+	"fmt"
+	"log"
 
-	middleware "sytron-server/middleware"
-	routes "sytron-server/routes"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	_ "github.com/heroku/x/hmetrics/onload"
-	"github.com/joho/godotenv"
+	"sytron-server/api/middleware"
+	"sytron-server/api/routes"
+	"sytron-server/constants"
 )
 
 func main() {
-	if err := godotenv.Load(".env"); err != nil {
-		panic("Failed to load environment variables")
+	// database
+	// defer conn.Close()
+
+	// Server
+	port := "8000"
+	if constants.PORT != "" {
+		port = constants.PORT
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8000"
+	app := fiber.New()
+	app.Use(cors.New())
+
+	if constants.ENVIRONMENT == "development" {
+		app.Use(func(c *fiber.Ctx) error {
+			log.Printf("Fetching %v\n", c.Request().URI())
+			return c.Next()
+		})
 	}
 
-	router := gin.New()
-	router.Use(gin.Logger())
+	routes.InitRoutes(app)
 
-	// Allow cors
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowCredentials: true,
-		AllowHeaders:     []string{"*"},
-		AllowWildcard:    true,
-		AllowFiles:       true,
-	}))
-	routes.InitRoutes(router)
+	// backofficers are only allowed access here
+	app.Use(middleware.InitJWTAuth())
 
-	// @vin, I will need to move this up when I implement authorization
-	router.Use(middleware.Authentication())
+	// TODO define edpoint level validation for other roles
+	routes.InitProtectedRoutes(app)
 
-	router.Run(":" + port)
+	for _, route := range app.GetRoutes() {
+		fmt.Printf("%v %v\n", route.Method, route.Path)
+	}
 
+	log.Fatal(app.Listen(":" + port))
 }
