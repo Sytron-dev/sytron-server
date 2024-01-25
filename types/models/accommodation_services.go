@@ -21,5 +21,5 @@ type BNB struct {
 	Assets      []Asset  `json:"assets"      db:"assets"`
 	Archived    bool     `json:"archived"    db:"archived"`
 
-	types.Coordinates `json:",inline" db:",inline"`
+	types.Coordinates `json:"coordinates" db:",inline"`
 }
