@@ -2,10 +2,12 @@ package models
 
 // images of different formats, videos, etc
 type Asset struct {
-	SqlDocument `       json:",inline" db:",inline"`
-	Url         string `json:"url"                  bson:"url,omitempty"`
-	Format      string `json:"format"               bson:"format,omitempty"`
-	Alt         string `json:"alt"                  bson:"alt,omitempty"`
+	SqlDocument `       json:",inline,omitempty"    db:",inline"`
+	Type        string `json:"_type,omitempty"      db:"_type"`
+	Reference   string `json:"_reference,omitempty" db:"reference"`
+	Url         string `json:"url,omitempty"        db:"url"`
+	Format      string `json:"format,omitempty"     db:"format"`
+	Alt         string `json:"alt,omitempty"        db:"alt"`
 }
 
 // Pricing information

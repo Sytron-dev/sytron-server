@@ -1,13 +1,15 @@
 package service_controller
 
 import (
+	"fmt"
 	"net/http"
-
-	"github.com/gofiber/fiber/v2"
-
+	"sytron-server/api/handlers/upload"
+	"sytron-server/storage/conn"
 	"sytron-server/storage/queries"
 	"sytron-server/types"
 	"sytron-server/types/models"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // CRUD for bed & breakfast services
@@ -100,6 +102,38 @@ func UpdateBNB() types.HandlerFunc {
 			})
 		} else {
 			return ctx.JSON(res)
+		}
+	}
+}
+
+// Asset management
+func UploadBNBImage() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) error {
+		id := ctx.Params("id")
+
+		fileName := fmt.Sprintf("services/bnb/%v/image", id)
+
+		imageUrl, errResponse := upload.UploadFile(
+			ctx,
+			"image",
+			conn.CMSBucketHandle,
+			fileName,
+		)
+
+		if errResponse != nil {
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(errResponse)
+		}
+
+		if updatedBNB, err := queries.UpdateBnbImage(id, *imageUrl); err != nil {
+			ctx.Status(http.StatusInternalServerError)
+			return ctx.JSON(types.ErrorResponse{
+				Message:  "Failed updating bnb image",
+				Error:    err,
+				Metadata: err.Error(),
+			})
+		} else {
+			return ctx.JSON(updatedBNB)
 		}
 	}
 }
