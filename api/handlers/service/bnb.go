@@ -3,13 +3,14 @@ package service_controller
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
+
 	"sytron-server/api/handlers/upload"
 	"sytron-server/storage/conn"
 	"sytron-server/storage/queries"
 	"sytron-server/types"
 	"sytron-server/types/models"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 // CRUD for bed & breakfast services
@@ -135,5 +136,21 @@ func UploadBNBImage() types.HandlerFunc {
 		} else {
 			return ctx.JSON(updatedBNB)
 		}
+	}
+}
+
+// Danger zone
+
+func DeleteBNB() types.HandlerFunc {
+	return func(ctx *fiber.Ctx) (err error) {
+		id := ctx.Params("id")
+
+		if err = queries.DeleteBNB(id); err != nil {
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
+
+		ctx.Status(fiber.StatusOK)
+		return
 	}
 }

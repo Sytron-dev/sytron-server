@@ -2,9 +2,10 @@ package queries
 
 import (
 	"context"
-	"sytron-server/types/models"
 
 	"github.com/jackc/pgx/v5"
+
+	"sytron-server/types/models"
 )
 
 func CreateBNB(b models.BNB) (bnb models.BNB, err error) {
@@ -118,4 +119,13 @@ func UpdateBnbImage(id string, url string) (bnb models.BNB, err error) {
 	} else {
 		return pgx.CollectOneRow(row, pgx.RowToStructByNameLax[models.BNB])
 	}
+}
+
+func DeleteBNB(id string) (err error) {
+	query := `
+		DELETE FROM bnb
+		WHERE _id = $1
+	`
+	_, err = pgxConn.Exec(context.TODO(), query, id)
+	return
 }
