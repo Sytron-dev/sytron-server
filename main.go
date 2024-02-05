@@ -37,8 +37,13 @@ func main() {
 	// backofficers are only allowed access here
 	app.Use(middleware.InitJWTAuth())
 
-	// TODO define edpoint level validation for other roles
+	// TODO define endpoint level validation for other roles
 	routes.InitProtectedRoutes(app)
+
+	// 404 Handler
+	app.Use(func(c *fiber.Ctx) error {
+		return c.SendStatus(404) // => 404 "Not Found"
+	})
 
 	for _, route := range app.GetRoutes() {
 		fmt.Printf("%v %v\n", route.Method, route.Path)

@@ -14,5 +14,7 @@ func initServicesRoutes(router *fiber.App) {
 
 func initProtectedServicesRoutes(router *fiber.App) {
 	router.Post("/services/bnb", controller.CreateBNB())
+	router.Post("/services/bnb/:id/image", controller.UploadBNBImage())
 	router.Put("/services/bnb/:id", controller.UpdateBNB())
+	router.Delete("/services/bnb/:id", controller.DeleteBNB())
 }

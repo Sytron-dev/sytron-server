@@ -25,7 +25,7 @@ func CreateBNB(b models.BNB) (bnb models.BNB, err error) {
 		b.Coordinates.Longitude,
 		b.Currency,
 		b.Price,
-		b.ImageUrl, // TODO move this to its own query
+		b.ImageUrl,
 		b.Company,
 		b.Country,
 		b.City,
@@ -83,7 +83,7 @@ func UpdateBNB(id string, b models.BNB) (bnb models.BNB, err error) {
 		id,
 		b.Name,
 		b.Description,
-		b.ImageUrl, // TODO move this to it's own query
+		b.ImageUrl,
 		b.Country,
 		b.City,
 		b.Currency,
@@ -97,5 +97,35 @@ func UpdateBNB(id string, b models.BNB) (bnb models.BNB, err error) {
 	}
 
 	bnb, err = pgx.CollectOneRow(row, pgx.RowToStructByNameLax[models.BNB])
+	return
+}
+
+func UpdateBnbImage(id string, url string) (bnb models.BNB, err error) {
+	query := `
+		UPDATE bnb
+		SET image_url=$2
+		WHERE _id = $1
+		AND (SELECT _id FROM bnb WHERE _id = $1) IS NOT NULL
+		RETURNING *
+	`
+
+	if row, err := pgxConn.Query(
+		context.TODO(),
+		query,
+		id,
+		url,
+	); err != nil {
+		return bnb, err
+	} else {
+		return pgx.CollectOneRow(row, pgx.RowToStructByNameLax[models.BNB])
+	}
+}
+
+func DeleteBNB(id string) (err error) {
+	query := `
+		DELETE FROM bnb
+		WHERE _id = $1
+	`
+	_, err = pgxConn.Exec(context.TODO(), query, id)
 	return
 }
