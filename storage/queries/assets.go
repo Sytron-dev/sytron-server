@@ -2,23 +2,28 @@ package queries
 
 import (
 	"context"
-	"sytron-server/types/models"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
+
+	"sytron-server/types/models"
 )
 
 // creates a new asset
 func CreateAsset(data models.Asset) (asset models.Asset, err error) {
 	query := `
 		INSERT INTO assets
-		(reference, type, url, format, alt)
-		VALUES ($1, $2, $3, $4, $5)
+		(_id, _reference, _type, url, format, alt)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING *
 	`
+
+	fmt.Println(data)
 
 	row, err := pgxConn.Query(
 		context.TODO(),
 		query,
+		data.ID,
 		data.Reference,
 		data.Type,
 		data.Url,
@@ -30,6 +35,32 @@ func CreateAsset(data models.Asset) (asset models.Asset, err error) {
 	}
 
 	asset, err = pgx.CollectOneRow(row, pgx.RowToStructByNameLax[models.Asset])
+	return
+}
+
+// update the asset
+func UpdateAsset(id string, data models.Asset) (asset models.Asset, err error) {
+	query := `
+		UPDATE assets
+		SET url = $1, format = $2, alt = $3
+		WHERE _id = $4
+		RETURNING *
+	`
+
+	row, err := pgxConn.Query(
+		context.TODO(),
+		query,
+		data.Url,
+		data.Format,
+		data.Alt,
+		id,
+	)
+	if err != nil {
+		return
+	}
+
+	asset, err = pgx.CollectOneRow(row, pgx.RowToStructByNameLax[models.Asset])
+
 	return
 }
 

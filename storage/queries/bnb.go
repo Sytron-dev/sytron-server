@@ -48,6 +48,11 @@ func GetBNBs() (bnbs []models.BNB, err error) {
 		return
 	}
 	bnbs, err = pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.BNB])
+
+	for i := range bnbs {
+		bnbs[i].Assets = []models.Asset{}
+	}
+
 	return
 }
 
@@ -61,8 +66,22 @@ func FindOneBNB(id string) (bnb models.BNB, err error) {
 	if err != nil {
 		return
 	}
-
 	bnb, err = pgx.CollectOneRow(row, pgx.RowToStructByNameLax[models.BNB])
+
+	// fetch assets
+	query = `
+		SELECT *
+		FROM assets
+		WHERE _reference = $1 AND _type = 'bnb'
+		ORDER BY created_at
+	`
+	assets, err := pgxConn.Query(context.TODO(), query, id)
+	if err != nil {
+		return
+	}
+
+	bnb.Assets, err = pgx.CollectRows(assets, pgx.RowToStructByNameLax[models.Asset])
+
 	return
 }
 

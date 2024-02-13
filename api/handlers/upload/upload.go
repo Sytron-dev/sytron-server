@@ -1,6 +1,7 @@
 package upload
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
@@ -17,12 +18,21 @@ func UploadFile(
 	bucketHandle *cloud_storage.BucketHandle,
 	filePath string,
 ) (*string, *types.ErrorResponse) {
-	fileHeader, _ := ctx.FormFile(key)
+	fileHeader, err := ctx.FormFile(key)
+	if err != nil {
+		return nil, &types.ErrorResponse{
+			Message:  "Error reading files in form body",
+			Error:    err,
+			Metadata: err.Error(),
+		}
+	}
+
 	f, err := fileHeader.Open()
 	if err != nil {
 		return nil, &types.ErrorResponse{
-			Message: "Error getting file from form",
-			Error:   err,
+			Message:  "Error getting file from form",
+			Error:    err,
+			Metadata: err.Error(),
 		}
 	}
 
@@ -32,19 +42,24 @@ func UploadFile(
 
 	if _, err := io.Copy(sw, f); err != nil {
 		return nil, &types.ErrorResponse{
-			Message: "Error copying file to storage",
-			Error:   err,
+			Message:  "Error copying file to storage",
+			Error:    err,
+			Metadata: err.Error(),
 		}
 	}
 
 	if err := sw.Close(); err != nil {
 		return nil, &types.ErrorResponse{
-			Message: "Error closing writer",
-			Error:   err,
+			Message:  "Error closing writer",
+			Error:    err,
+			Metadata: err.Error(),
 		}
 	}
 
 	// if all is good :
 	url := sw.Attrs().MediaLink
+
+	fmt.Println(url)
+
 	return &url, nil
 }
