@@ -33,11 +33,12 @@ func CreateAsset(tableRef string, rootDir string) types.HandlerFunc {
 			SqlDocument: models.SqlDocument{
 				ID: uuid.New(),
 			},
-			Alt: ctx.FormValue("alt"),
-			// FIXME implement better mimetypes
-			Format:    ctx.FormValue("format"),
 			Reference: refID,
-			Type:      tableRef,
+			// FIXME implement better mimetypes
+			Format: ctx.FormValue("format"),
+			Alt:    ctx.FormValue("alt"),
+			Type:   tableRef,
+			Url:    ctx.FormValue("url"),
 		}
 
 		if asset.Url == "" {
