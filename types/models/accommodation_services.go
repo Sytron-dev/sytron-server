@@ -20,6 +20,7 @@ type BNB struct {
 	Price       *float32 `json:"price"       db:"price,omitempty"`
 	Assets      []Asset  `json:"assets"      db:"assets"`
 	Archived    bool     `json:"archived"    db:"archived"`
+	Published   bool     `json:"published"   db:"published"`
 
 	types.Coordinates `json:",inline" db:",inline"`
 }
