@@ -22,5 +22,5 @@ type BNB struct {
 	Archived    bool     `json:"archived"    db:"archived"`
 	Published   bool     `json:"published"   db:"published"`
 
-	types.Coordinates `json:",inline" db:",inline"`
+	types.Coordinates `json:"coordinates" db:",inline"`
 }
