@@ -23,8 +23,8 @@ func CreateBNB() types.HandlerFunc {
 		if err := ctx.BodyParser(&body); err != nil {
 			ctx.Status(http.StatusBadRequest)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "There's a problem with your request body",
-				Error:   err,
+				Message:  "There's a problem with your request body",
+				Metadata: err.Error(),
 			})
 		}
 
@@ -33,7 +33,6 @@ func CreateBNB() types.HandlerFunc {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message:  "Failed writing to database",
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		} else {
@@ -47,8 +46,8 @@ func GetBNBs() types.HandlerFunc {
 		if bnb, err := queries.GetBNBs(); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed while reading database",
-				Error:    err,
+				Message: "Failed while reading database",
+
 				Metadata: err.Error(),
 			})
 		} else {
@@ -65,8 +64,8 @@ func GetSingleBNB() types.HandlerFunc {
 		if bnb, err := queries.FindOneBNB(id); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed while reading database",
-				Error:    err,
+				Message: "Failed while reading database",
+
 				Metadata: err.Error(),
 			})
 		} else {
@@ -85,8 +84,8 @@ func UpdateBNB() types.HandlerFunc {
 		if err := ctx.BodyParser(&data); err != nil {
 			ctx.Status(http.StatusBadRequest)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed to parse JSON data",
-				Error:    err,
+				Message: "Failed to parse JSON data",
+
 				Metadata: err.Error(),
 			})
 		}
@@ -97,8 +96,8 @@ func UpdateBNB() types.HandlerFunc {
 		if res, err := queries.UpdateBNB(id, data); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed while reading database",
-				Error:    err,
+				Message: "Failed while reading database",
+
 				Metadata: err.Error(),
 			})
 		} else {
@@ -130,7 +129,6 @@ func UploadBNBImage() types.HandlerFunc {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message:  "Failed updating bnb image",
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		} else {
@@ -145,12 +143,29 @@ func DeleteBNB() types.HandlerFunc {
 	return func(ctx *fiber.Ctx) (err error) {
 		id := ctx.Params("id")
 
-		if err = queries.DeleteBNB(id); err != nil {
-			ctx.Status(http.StatusInternalServerError)
-			return
+		// delete related assets from db
+		if err = queries.DeleteAssets(id, "bnb"); err != nil {
+			return ctx.Status(http.StatusInternalServerError).JSON(types.ErrorResponse{
+				Message:  "Failed delete assets from database",
+				Metadata: err.Error(),
+			})
 		}
 
-		ctx.Status(fiber.StatusOK)
+		// delete row from db
+		if err = queries.DeleteBNB(id); err != nil {
+			return ctx.Status(http.StatusInternalServerError).JSON(types.ErrorResponse{
+				Message:  "Failed delete object from db",
+				Metadata: err.Error(),
+			})
+		}
+
+		// delete assets folder
+		folderName := fmt.Sprintf("services/bnb/%v", id)
+
+		if errResp := upload.DeleteFolder(ctx, conn.CMSBucketHandle, folderName); errResp.Metadata != nil {
+			return ctx.Status(http.StatusInternalServerError).JSON(errResp)
+		}
+
 		return
 	}
 }

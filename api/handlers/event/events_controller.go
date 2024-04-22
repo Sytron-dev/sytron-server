@@ -23,8 +23,8 @@ func CreateEvent() types.HandlerFunc {
 		if err := ctx.BodyParser(&body); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "There's a problem with your request body",
-				Error:   err,
+				Message:  "There's a problem with your request body",
+				Metadata: err.Error(),
 			})
 		}
 
@@ -35,8 +35,8 @@ func CreateEvent() types.HandlerFunc {
 		if res, err := resolvers.EventsResolver.InsertOne(body); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed reading/writing to database",
-				Error:   err,
+				Message:  "Failed reading/writing to database",
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(res)
@@ -57,8 +57,8 @@ func GetSingleEvent() types.HandlerFunc {
 		if event, err := resolvers.EventsResolver.FindOneByID(id); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Error finding event",
-				Error:   err,
+				Message:  "Error finding event",
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(event)
@@ -71,8 +71,8 @@ func GetEvents() types.HandlerFunc {
 		if events, err := resolvers.EventsResolver.FindMany(storage.PaginationOptions{}); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed while reading events",
-				Error:   err,
+				Message:  "Failed while reading events",
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(events)
@@ -95,8 +95,8 @@ func UpdateEvent() types.HandlerFunc {
 		if err := ctx.BodyParser(body); err != nil {
 			ctx.Status(http.StatusBadRequest)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed reading request body",
-				Error:   err,
+				Message:  "Failed reading request body",
+				Metadata: err.Error(),
 			})
 		}
 
@@ -104,8 +104,8 @@ func UpdateEvent() types.HandlerFunc {
 		if res, err := resolvers.EventsResolver.UpdateOne(id, body); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed updating event",
-				Error:   err,
+				Message:  "Failed updating event",
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(res)
@@ -136,8 +136,8 @@ func UploadEventHeroImage() types.HandlerFunc {
 		if updatedEvent, err := updateOneEvent(id, newEvent); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed updating event",
-				Error:   err,
+				Message:  "Failed updating event",
+				Metadata: err.Error(),
 			})
 		} else {
 			return ctx.JSON(updatedEvent)
@@ -152,8 +152,8 @@ func DeleteEvent() types.HandlerFunc {
 		if err := resolvers.EventsResolver.DeleteOne(id); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed deleting event",
-				Error:   err,
+				Message:  "Failed deleting event",
+				Metadata: err.Error(),
 			})
 		}
 		ctx.Status(http.StatusNoContent)

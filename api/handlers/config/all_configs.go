@@ -12,14 +12,14 @@ func GetAllConfigs() types.HandlerFunc {
 		// get countries
 		countries, err := queries.GetCountries()
 		if err != nil {
-			return ctx.Status(fiber.StatusInternalServerError).JSON(types.ErrorResponse{Error: err})
+			return ctx.Status(fiber.StatusInternalServerError).
+				JSON(types.ErrorResponse{Metadata: err})
 		}
 
 		// get all cities
 		cities, err := queries.GetCities("all")
 		if err != nil {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(types.ErrorResponse{
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		}

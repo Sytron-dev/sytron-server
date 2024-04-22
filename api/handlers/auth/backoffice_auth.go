@@ -29,8 +29,8 @@ func CreateBackOfficeAuth() types.HandlerFunc {
 		if err != nil {
 			ctx.Status(fiber.StatusBadRequest)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed reading request body",
-				Error:   err,
+				Message:  "Failed reading request body",
+				Metadata: err.Error(),
 			})
 		}
 
@@ -43,8 +43,8 @@ func CreateBackOfficeAuth() types.HandlerFunc {
 		if pwd, err := util.HashPassword("super.secret.shhh!"); err != nil {
 			ctx.Status(fiber.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed generating password",
-				Error:    err,
+				Message: "Failed generating password",
+
 				Metadata: err.Error(),
 			})
 		} else {
@@ -56,8 +56,8 @@ func CreateBackOfficeAuth() types.HandlerFunc {
 		if err != nil {
 			ctx.Status(fiber.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed reading/writing to database",
-				Error:    err,
+				Message: "Failed reading/writing to database",
+
 				Metadata: err.Error(),
 			})
 		}
@@ -76,8 +76,8 @@ func LoginBackOfficer() types.HandlerFunc {
 		if err != nil {
 			ctx.Status(fiber.StatusBadRequest)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed reading request body",
-				Error:   err,
+				Message:  "Failed reading request body",
+				Metadata: err.Error(),
 			})
 		}
 
@@ -87,7 +87,6 @@ func LoginBackOfficer() types.HandlerFunc {
 			ctx.Status(fiber.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message:  "Failed reading/writing to database",
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		} else {
@@ -108,12 +107,10 @@ func LoginBackOfficer() types.HandlerFunc {
 				credentials.Value,
 				constants.USER_ROLE_BACKOFFICER,
 			)
-
 			if err != nil {
 				ctx.Status(fiber.StatusInternalServerError)
 				return ctx.JSON(types.ErrorResponse{
 					Message:  "Failed generating tokens",
-					Error:    err,
 					Metadata: err.Error(),
 				})
 			}

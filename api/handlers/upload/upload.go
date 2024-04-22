@@ -22,7 +22,6 @@ func UploadFile(
 	if err != nil {
 		return nil, &types.ErrorResponse{
 			Message:  "Error reading files in form body",
-			Error:    err,
 			Metadata: err.Error(),
 		}
 	}
@@ -31,7 +30,6 @@ func UploadFile(
 	if err != nil {
 		return nil, &types.ErrorResponse{
 			Message:  "Error getting file from form",
-			Error:    err,
 			Metadata: err.Error(),
 		}
 	}
@@ -43,7 +41,6 @@ func UploadFile(
 	if _, err := io.Copy(sw, f); err != nil {
 		return nil, &types.ErrorResponse{
 			Message:  "Error copying file to storage",
-			Error:    err,
 			Metadata: err.Error(),
 		}
 	}
@@ -51,7 +48,6 @@ func UploadFile(
 	if err := sw.Close(); err != nil {
 		return nil, &types.ErrorResponse{
 			Message:  "Error closing writer",
-			Error:    err,
 			Metadata: err.Error(),
 		}
 	}
@@ -62,4 +58,47 @@ func UploadFile(
 	fmt.Println(url)
 
 	return &url, nil
+}
+
+func DeleteFile(
+	ctx *fiber.Ctx,
+	bucketHandle *cloud_storage.BucketHandle,
+	filePath string,
+) (err types.ErrorResponse) {
+	if delErr := bucketHandle.Object(filePath).Delete(ctx.Context()); delErr != nil {
+		err.Message = "Failed to delete file"
+		err.Metadata = delErr.Error()
+	}
+
+	return err
+}
+
+func DeleteFolder(
+	ctx *fiber.Ctx,
+	bucketHandle *cloud_storage.BucketHandle,
+	folderPath string,
+) (errRes types.ErrorResponse) {
+	it := bucketHandle.Objects(ctx.Context(), &cloud_storage.Query{Prefix: folderPath})
+
+	errs := []error{}
+
+	// delete all individual object
+	for {
+		obj, err := it.Next()
+		if err != nil {
+			break
+		}
+
+		if err = bucketHandle.Object(obj.Name).Delete(ctx.Context()); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	// collect errors
+	if len(errs) > 0 {
+		errRes.Message = "Failed to delete a few files. The object may contain useful metadata to debug this"
+		errRes.Metadata = fmt.Sprintln(errs)
+	}
+
+	return
 }

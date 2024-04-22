@@ -9,10 +9,10 @@ import (
 type BNB struct {
 	// keys
 	SqlDocument `json:",inline" db:",inline"`
-	City        *int64      `json:"_city"    db:"_city,omitempty"`
-	Country     *string     `json:"_country" db:"_country,omitempty"`
-	Company     *types.UUID `json:"_company" db:"_company,omitempty"`
-	Currency    *string     `json:"currency" db:"_currency,omitempty"`
+	City        *int64      `json:"_city"              db:"_city,omitempty"`
+	Country     *string     `json:"_country"           db:"_country,omitempty"`
+	Company     *types.UUID `json:"_company,omitempty" db:"_company,omitempty"`
+	Currency    *string     `json:"currency"           db:"_currency,omitempty"`
 
 	Name        string   `json:"name"        db:"name"`
 	Description *string  `json:"description" db:"description"`

@@ -17,8 +17,8 @@ func GetBackOfficers() types.HandlerFunc {
 			// failure
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed while reading database",
-				Error:   err,
+				Message:  "Failed while reading database",
+				Metadata: err,
 			})
 		} else {
 			// success

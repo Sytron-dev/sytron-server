@@ -45,7 +45,7 @@ func LoginUser(c *fiber.Ctx) error {
 		c.Status(http.StatusBadRequest)
 		return c.JSON(types.ErrorResponse{
 			Message:  "Something's wrong with the body",
-			Error:    err,
+			
 			Metadata: err.Error(),
 		})
 	}

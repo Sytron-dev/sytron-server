@@ -19,8 +19,8 @@ func GetCountries() types.HandlerFunc {
 		if data, err := queries.GetCountries(); err != nil {
 			ctx.Status(fiber.ErrInternalServerError.Code)
 			return ctx.JSON(types.ErrorResponse{
-				Message: err.Error(),
-				Error:   err,
+				Message:  err.Error(),
+				Metadata: err,
 			})
 		} else {
 			return ctx.JSON(data)
@@ -36,8 +36,8 @@ func GetCities() types.HandlerFunc {
 		cities, err := queries.GetCities(country)
 		if err != nil {
 			return ctx.Status(fiber.ErrInternalServerError.Code).JSON(types.ErrorResponse{
-				Message: "Oops",
-				Error:   err,
+				Message:  "Oops",
+				Metadata: err,
 			})
 		}
 		return ctx.Status(fiber.StatusOK).JSON(cities)

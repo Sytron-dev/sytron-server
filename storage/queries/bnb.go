@@ -5,7 +5,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"sytron-server/constants"
 	"sytron-server/types/models"
+	"sytron-server/util"
 )
 
 func CreateBNB(b models.BNB) (bnb models.BNB, err error) {
@@ -66,7 +68,13 @@ func FindOneBNB(id string) (bnb models.BNB, err error) {
 	if err != nil {
 		return
 	}
+
 	bnb, err = pgx.CollectOneRow(row, pgx.RowToStructByNameLax[models.BNB])
+
+	if util.IsEmptyUUID(bnb.ID) {
+		err = constants.ErrNotFound
+		return
+	}
 
 	// fetch assets
 	query = `

@@ -3,13 +3,14 @@ package cms
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
+
 	"sytron-server/api/handlers/upload"
 	"sytron-server/storage/conn"
 	"sytron-server/storage/queries"
 	"sytron-server/types"
 	"sytron-server/types/models"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func CreateDestination() types.HandlerFunc {
@@ -19,8 +20,8 @@ func CreateDestination() types.HandlerFunc {
 
 		if err := ctx.BodyParser(&body); err != nil {
 			resErr := types.ErrorResponse{
-				Message:  "There's a problem with your request body",
-				Error:    err,
+				Message: "There's a problem with your request body",
+
 				Metadata: err.Error(),
 			}
 			ctx.Status(http.StatusBadRequest)
@@ -31,8 +32,8 @@ func CreateDestination() types.HandlerFunc {
 		if res, err := queries.CreateDestination(body); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed reading/writing to database",
-				Error:    err,
+				Message: "Failed reading/writing to database",
+
 				Metadata: err.Error(),
 			})
 		} else {
@@ -45,8 +46,8 @@ func GetDestinations() types.HandlerFunc {
 	return func(ctx *fiber.Ctx) error {
 		if destinations, err := queries.GetDestinations(); err != nil {
 			return ctx.Status(fiber.ErrInternalServerError.Code).JSON(types.ErrorResponse{
-				Message:  "Failed reading destinations",
-				Error:    err,
+				Message: "Failed reading destinations",
+
 				Metadata: err.Error(),
 			})
 		} else {
@@ -62,8 +63,8 @@ func GetSingleDestination() types.HandlerFunc {
 
 		if destination, err := queries.FindOneDestination(id); err != nil {
 			return ctx.Status(http.StatusInternalServerError).JSON(types.ErrorResponse{
-				Message:  "Error finding document",
-				Error:    err,
+				Message: "Error finding document",
+
 				Metadata: err.Error(),
 			})
 		} else {
@@ -82,8 +83,8 @@ func UpdateDestination() types.HandlerFunc {
 		if err := ctx.BodyParser(&dest); err != nil {
 			ctx.Status(http.StatusBadRequest)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed parsing request body",
-				Error:   err,
+				Message:  "Failed parsing request body",
+				Metadata: err,
 			})
 		}
 
@@ -91,7 +92,6 @@ func UpdateDestination() types.HandlerFunc {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message:  "Failed updating destination",
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		} else {
@@ -120,8 +120,8 @@ func UploadDestinationImage() types.HandlerFunc {
 		if updatedDest, err := queries.UpdateDestinationImage(id, *imageUrl); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed updating destination image",
-				Error:    err,
+				Message: "Failed updating destination image",
+
 				Metadata: err.Error(),
 			})
 		} else {
@@ -136,8 +136,8 @@ func DeleteDestination() types.HandlerFunc {
 
 		if err := queries.DeleteDestination(id); err != nil {
 			ctx.Status(http.StatusInternalServerError).JSON(types.ErrorResponse{
-				Message: "Failed deleting destination",
-				Error:   err,
+				Message:  "Failed deleting destination",
+				Metadata: err,
 			})
 		}
 

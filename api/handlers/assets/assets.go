@@ -63,7 +63,6 @@ func CreateAsset(tableRef string, rootDir string) types.HandlerFunc {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message:  "Failed saving asset",
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		} else {
@@ -111,8 +110,8 @@ func UpdateAsset(tableRef string, rootDir string) types.HandlerFunc {
 		if res, err := queries.UpdateAsset(assetID, asset); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message:  "Failed updating asset",
-				Error:    err,
+				Message: "Failed updating asset",
+
 				Metadata: err.Error(),
 			})
 		} else {

@@ -2,11 +2,12 @@ package company
 
 import (
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
+
 	"sytron-server/storage/queries"
 	"sytron-server/types"
 	"sytron-server/types/models"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func CreateCompany() types.HandlerFunc {
@@ -17,8 +18,8 @@ func CreateCompany() types.HandlerFunc {
 		if err := ctx.BodyParser(&body); err != nil {
 			ctx.Status(http.StatusBadRequest)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "There's a problem with your request body",
-				Error:   err,
+				Message:  "There's a problem with your request body",
+				Metadata: err,
 			})
 
 		}
@@ -27,7 +28,6 @@ func CreateCompany() types.HandlerFunc {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message:  "Failed writing to database",
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		} else {
@@ -42,7 +42,6 @@ func GetCompanies() types.HandlerFunc {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message:  "Failed while reading database",
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		} else {
@@ -60,7 +59,6 @@ func GetSingleCompany() types.HandlerFunc {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
 				Message:  "Failed while reading database",
-				Error:    err,
 				Metadata: err.Error(),
 			})
 		} else {
@@ -78,16 +76,16 @@ func UpdateCompany() types.HandlerFunc {
 		if err := ctx.BodyParser(&company); err != nil {
 			ctx.Status(http.StatusBadRequest)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed parsing request body",
-				Error:   err,
+				Message:  "Failed parsing request body",
+				Metadata: err,
 			})
 		}
 
 		if updatedCompany, err := queries.UpdateCompany(id, company); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return ctx.JSON(types.ErrorResponse{
-				Message: "Failed updating company",
-				Error:   err,
+				Message:  "Failed updating company",
+				Metadata: err,
 			})
 		} else {
 			return ctx.JSON(updatedCompany)

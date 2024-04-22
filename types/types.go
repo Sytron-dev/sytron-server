@@ -26,6 +26,5 @@ type DataResponse struct {
 
 type ErrorResponse struct {
 	Message  string `json:"message"`
-	Error    error  `json:"error"`
 	Metadata any    `json:"metadata,omitempty"`
 }
